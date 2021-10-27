@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+</body>
+<script>
+    class Queue {
+        constructor(){
+            this.count = 0;
+            this.lowestCount = 0;
+            this.items = {};
+        }
+        enqueue(element){
+            this.items[this.count] = element;
+            this.count ++;
+        }
+        dequeue(element){
+            if(this.items === null){
+                return undefined;
+            }
+            const result = this.items[this.lowestCount];
+            delete this.items[this.lowestCount];
+            this.lowestCount ++;
+            return result;
+        }
+        isEmpty(){
+            return this.count - this.lowestCount === 0;
+        }
+    }
+    class Graph {
+        constructor (isDirected = false){
+            this.isDirected = isDirected;
+            this.vertices = [];
+            this.adjList = new Map();
+        }
+        addVertex(v) {
+            if(!this.vertices.includes(v)){
+                this.vertices.push(v);
+                this.adjList.set(v,[]);
+            }
+        }
+        addEdge(v,w){
+            if (!this.adjList.get(v)) {
+                this.addVertex(v);
+            }
+            if (!this.adjList.get(w)) {
+                this.addVertex(w);
+            }
+            this.adjList.get(v).push(w);
+            if (!this.isDirected) {
+                this.adjList.get(w).push(v);
+            }
+        }
+        getVertices(){
+            return this.vertices;
+        }
+        getAdjList(){
+            return this.adjList;
+        }
+        toString() {
+            let s = '';
+            for(let i = 0; i < this.vertices.length; i++) {
+                s += `${this.vertices[i]} -> `;
+                const neighbors = this.adjList.get(this.vertices[i]);
+                neighbors.forEach(value =>{
+                    s += `${value} `;
+                })
+                s += '\n';
+            }
+            return s;
+        }
+    }
+    const graph = new Graph();
+    const myVertices = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'];
+    myVertices.forEach(valve =>{
+        graph.addVertex(valve)
+    })
+    graph.addEdge('A','B');
+    graph.addEdge('A','C');
+    graph.addEdge('A','D');
+    graph.addEdge('C','D');
+    graph.addEdge('C','G');
+    graph.addEdge('D','G');
+    graph.addEdge('D','H');
+    graph.addEdge('B','E');
+    graph.addEdge('B','F');
+    graph.addEdge('E','I');
+
+    const colors = {
+            WHITE: 0,
+            GRAY: 1,
+            BLACK: 2
+    }
+    const initializeColor = vertices =>{
+        const color = {};
+        vertices.forEach(value => {
+            color[value] = colors.WHITE;
+        })
+        return color;
+    };
+    // 广度优先算法
+    
+    const breadthFirstSearch = (graph, startVertex, callback) =>{
+        const vertices = graph.getVertices();
+        const adjList = graph.getAdjList();
+        const color = initializeColor(vertices);
+        const queue = [];
+        queue.push(startVertex);
+        while(queue.length){
+            const u = queue.shift();
+            const neighbors = adjList.get(u);
+            color[u] = colors.GRAY;
+            /* for(let i = 0; i < neighbors.length; i++) {
+                const w = neighbors[i];
+                if(color[w] === colors.WHITE){
+                    color[w] = colors.GRAY;
+                    queue.enqueue(w);
+                }
+            } */
+            neighbors.forEach(value =>{
+                if(color[value] === colors.WHITE){
+                    color[value] = colors.GRAY;
+                    queue.push(value);
+                }
+            })
+            color[u] = colors.BLACK;
+            if(callback){
+                callback(u);
+            }
+        }
+    }
+    const printVertex = (value) => console.log('Visited vertex: ' + value);
+    breadthFirstSearch(graph, myVertices[0], printVertex);
+    console.log(graph.toString());
+
+    // 最短路径算法
+    const BFS = (graph, startVertex) =>{
+        const vertices = graph.getVertices();
+        const adjList = graph.getAdjList();
+        const color = initializeColor(vertices);
+        const queue = new Queue();
+        const distances = {};
+        const predecessors = {};
+        vertices.forEach( value => {
+            distances[value] = 0;
+            predecessors[value] = null;
+        })
+        queue.enqueue(startVertex);
+        while(!queue.isEmpty()){
+            const u = queue.dequeue();
+            const neighbors = adjList.get(u);
+            color[u] = colors.GRAY;
+            /* for(let i = 0; i < neighbors.length; i++) {
+                const w = neighbors[i];
+                if(color[w] === colors.WHITE){
+                    color[w] = colors.GRAY;
+                    queue.enqueue(w);
+                }
+            } */
+            neighbors.forEach(value =>{
+                if(color[value] === colors.WHITE){
+                    color[value] = colors.GRAY;
+                    distances[value] = distances[u] + 1;
+                    predecessors[value] = u;
+                    queue.enqueue(value);
+                }
+            })
+            color[u] = colors.BLACK;
+        }
+        return {
+            distances,
+            predecessors
+        };
+    }
+    console.log(BFS(graph, myVertices[0]));
+    const shortestPathA = BFS(graph, myVertices[0]);
+    
+    const fromVertex = myVertices[0];
+    for( i = 1; i < myVertices.length; i++){
+        const toVertex = myVertices[i];
+        const path = [];
+        for(let v = toVertex; v !== fromVertex; v = shortestPathA.predecessors[v]) {
+            path.push(v);
+        }
+        path.push(fromVertex);
+        let s = path.pop();
+        while(path.length !== 0){
+            s += '-' + path.pop();
+        }
+        console.log(s);
+    }
+
+    // 深度优先算法
+    const depthFirstSearch = (graph, callback) => {
+        const vertices = graph.getVertices();
+        const adjList = graph.getAdjList();
+        const color = initializeColor(vertices);
+        for(let i = 0; i < vertices.length; i++){
+            if(color[vertices[i]] === colors.WHITE){
+                depthFirstSearchVisit(vertices[i], color, adjList, callback);
+            }
+        }
+    };
+    const depthFirstSearchVisit = (u, color, adjList, callback) =>{
+        color[u] = colors.GRAY;
+        if(callback){
+            callback(u);
+        }
+        const neighbors = adjList.get(u);
+        neighbors.forEach(value =>{
+            if(color[value] === colors.WHITE){
+                depthFirstSearchVisit(value, color, adjList, callback);
+            }
+        })
+        color[u] = colors.BLACK; 
+    }
+    depthFirstSearch(graph,printVertex);
+</script>
+</html>

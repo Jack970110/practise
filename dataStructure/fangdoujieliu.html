@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+</body>
+<script>
+    //防抖函数：抖动停止后的时间超过设定的时间时执行一次函数
+function debounce(func, delay) {
+    var timeout;
+    //返回的函数在一个抖动结束后的delay毫秒内执行func函数
+    return function() {
+        var context = this, args = arguments; //保存函数调用时的上下文和参数
+        clearTimeout(timeout); //触发func前清除定时器
+        timeout = setTimeout(function() {
+            func.apply(context, args);
+        }, delay); //用户停止某个连续动作delay毫秒后执行func
+    };
+}
+function debounce1( func, delay){
+    var timeout;
+    return function(){
+        var target = this , args = arguments;
+        clearTimeout(timeout);
+        timeout = setTimeout(function(){
+            func.call(target,args);
+        }, delay);
+    }
+}
+
+//节流函数：按照设定的时间固定执行一次函数
+// 第二版
+function throttle(func, wait) {
+    var timeout;
+    var previous = 0;
+
+    return function() {
+        context = this;
+        args = arguments;
+        if (!timeout) {
+            timeout = setTimeout(function(){
+                timeout = null;
+                func.apply(context, args)
+            }, wait)
+        }
+
+    }
+}
+
+function throttle1(fn, wait) {
+    let previous = 0;
+    return function () {
+        let now = new Date().getTime();
+        if (now - previous > wait) {
+            fn.apply(this, arguments);
+            previous = now;
+        }
+    }
+}
+
+function realFunc () {
+    console.log('bibibi');
+}
+
+// window.addEventListener("resize", debounce1(realFunc, 500));
+window.addEventListener("resize", throttle(realFunc, 1000));
+</script>
+</html>
