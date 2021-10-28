@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+</body>
+<script>
+    //      发布订阅者设计模式
+//      发布者化整为零，
+    class Vue{
+            constructor(options){
+                this.options = options;
+                this.$data = options.data;
+                this.$el = document.querySelector(options.el);
+                this._directive = {}; 
+                
+                this.Observer(this.$data);
+                this.Complie(this.$el);
+            }
+            //劫持数据
+            Observer(data){
+                for( let key in data ){
+                    this._directive[key] = [];
+                    console.log(this._directive)
+                    let Val = data[key];
+                    let watch = this._directive[key];
+                    Object.defineProperty(this.$data, key, {
+                        get : function(){
+                            return Val;
+                        },
+                        set : function(newVal){
+                            if( newVal !== Val ){//新值不等于老值
+                                Val = newVal;
+                                //更新视图
+                                console.log(watch,'watch')
+                                watch.forEach(element => {
+                                    element.update();
+                                })
+                            }
+                        }
+                    })
+                }
+            }
+            //解析指令
+            Complie(el){
+                let nodes = el.children;
+                for(let i = 0;i < nodes.length; i++){
+                    let node = nodes[i];
+                    if( nodes[i].children){
+                        this.Complie(nodes[i]);
+                    }
+                    if(node.hasAttribute("v-text")){
+//                      console.log(1)
+                        let attrVal = node.getAttribute('v-text');
+                        this._directive[attrVal].push(new Watcher(node,this,attrVal,'innerHTML'));
+//                      console.log(this._directive);
+                    }
+                    if(node.hasAttribute("v-model")){
+                        let attrVal = node.getAttribute('v-model');
+                        this._directive[attrVal].push(new Watcher(node,this,attrVal,'value'));
+//                      console.log(this._directive);
+                        node.addEventListener('input',(function(){
+                            return function(){
+                                console.log(1);
+                                this.$data[attrVal] = node.value;
+                            }
+                        })().bind(this));
+                        
+                    }
+                }
+            }
+        }
+//      订阅者
+        class Watcher{
+//          div.innerHTML = vue对象.$data['myText'];
+            constructor(el, vm, exp, attr){
+                this.el = el;
+                this.vm = vm;
+                this.exp = exp;
+                this.attr = attr;
+                this.update();
+            }
+            update(){
+                this.el[this.attr] = this.vm.$data[this.exp];
+            }
+        }
+
+</script>
+</html>

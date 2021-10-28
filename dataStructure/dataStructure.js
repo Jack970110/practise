@@ -308,3 +308,9 @@ class BinarySearchTree{
     }
 
 }
+class Stack{
+    constructor(){
+        this.items = [];
+    }
+    
+}
