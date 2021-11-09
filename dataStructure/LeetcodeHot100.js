@@ -273,3 +273,131 @@ var nextPermutation = function (nums) {
         r--;
     }
 };
+
+/* 32.最长有效括号
+给你一个只包含 '(' 和 ')' 的字符串，找出最长有效（格式正确且连续）括号子串的长度。 */
+/* 思路：有校括号最容易想到的方法就是用栈数据结构了
+   但是栈得有参照物，计算方法：当前索引-栈顶索引，当栈空了，把当前索引扔进去当下次计算的参照物 */
+   var longestValidParentheses = function(s) {
+    let maxLen = 0, stack = [];
+    stack.push(-1);
+    for (let i = 0; i < s.length; i++) {
+        let c = s[i];
+        if (c === '(') {
+            stack.push(i);
+        } else {
+            stack.pop();
+            if (stack.length) { 
+                let curMaxLen = i - stack[stack.length - 1]; 
+                maxLen = Math.max(maxLen, curMaxLen);
+            } else {
+                stack.push(i);    
+            }
+        }
+    }
+    return maxLen;
+};
+/* 思路2：动态规划 */
+var longestValidParentheses = function(s) {
+    const dp = Array(s.length).fill(0);
+
+    for (let i = 1; i < s.length; i++) {
+        // 有效括号只能是以 ')' 结尾的
+        // 所以，以 '(' 结尾的字符串，最长有效括号长度就是 0，不用管
+        if (s[i] === ')') {
+            // 遇到 ')' 时，往左边去找跟它匹配的 '('，如果存在，那么有效长度在 dp[i - 1] 基础上加 2
+
+            // dp[i - 1] 是以 s[i - 1] 结尾的字符串的最长有效括号长度，设它为 k，
+            // 也就是 [i - k, i - 1] 这段是有效括号字符串，
+            // 如果这段字符串前面的那个字符 s[i - k - 1] 是 '(' 的话，那么有效长度加 2
+            if (i - dp[i - 1] - 1 >= 0 && s[i - dp[i - 1] - 1] === '(') {
+                dp[i] = dp[i - 1] + 2;
+
+                // 如果匹配到的 '(' 前面还有有效长度的话，也加上
+                if (i - dp[i - 1] - 2 > 0) {
+                    dp[i] += dp[i - dp[i - 1] - 2];
+                }
+            }
+        }
+    }
+    return Math.max(...dp, 0);
+};  
+
+/* 102.二叉树的层序遍历
+给你一个二叉树，请你返回其按 层序遍历 得到的节点值。 （即逐层地，从左到右访问所有节点）。 */
+var levelOrder = function(root){
+    let res = [];
+    if(root === null){
+        return res;
+    }
+    let queue = [root];
+    while(queue.length){
+        let len = queue.length, level = [];
+        for(let i = 0; i < len; i++){
+            let cur = queue.shift();
+            level.push(cur.val);
+            if(cur.left){
+                queue.push(cur.left);
+            }
+            if(cur.right){
+                queue.push(cur.right);
+            }
+        }
+        res.push(level);
+    }
+    return res;
+}
+var levelOrder = function(root) {
+    const ret = [];
+    if (!root) {
+        return ret;
+    }
+
+    const q = [];
+    q.push(root);
+    while (q.length !== 0) {
+        const currentLevelSize = q.length;
+        ret.push([]);
+        for (let i = 1; i <= currentLevelSize; ++i) {
+            const node = q.shift();
+            ret[ret.length - 1].push(node.val);
+            if (node.left) q.push(node.left);
+            if (node.right) q.push(node.right);
+        }
+    }
+        
+    return ret;
+};
+
+/* 33.搜索旋转排序数组
+    整数数组 nums 按升序排列，数组中的值 互不相同 。
+
+    在传递给函数之前，nums 在预先未知的某个下标 k（0 <= k < nums.length）上进行了 旋转，使数组变为 [nums[k], nums[k+1], ..., nums[n-1], nums[0], nums[1], ..., nums[k-1]]（下标 从 0 开始 计数）。例如， [0,1,2,4,5,6,7] 在下标 3 处经旋转后可能变为 [4,5,6,7,0,1,2] 。
+
+    给你 旋转后 的数组 nums 和一个整数 target ，如果 nums 中存在这个目标值 target ，则返回它的下标，否则返回 -1 。*/
+    var search = function(nums, target) {
+        if(!nums.length){
+            return -1;
+        }
+        let left = 0, right = nums.length - 1, mid;
+        while(left <= right){
+            mid = left + ((right - left) >> 1);
+            if(nums[mid] === target){
+                return mid;
+            }
+            if(nums[left] <= nums[mid]){
+                if (target >= nums[left] && target < nums[mid]) {
+                    right = mid -1;
+                } else {
+                    left = mid + 1;
+                }
+            } else {
+                if (target > nums[mid] && target <= nums[right]) {
+                    left = mid + 1;
+                } else {
+                    right = mid - 1;
+                }
+            }
+        }
+        return -1;
+    };
