@@ -257,7 +257,7 @@ var nextPermutation = function (nums) {
         i--;
     }
     if (i >= 0) {
-        let j = nums.length - 1;    
+        let j = nums.length - 1;
         while (j > i && nums[j] <= nums[i]) {
             j--
         }
@@ -278,7 +278,7 @@ var nextPermutation = function (nums) {
 给你一个只包含 '(' 和 ')' 的字符串，找出最长有效（格式正确且连续）括号子串的长度。 */
 /* 思路：有校括号最容易想到的方法就是用栈数据结构了
    但是栈得有参照物，计算方法：当前索引-栈顶索引，当栈空了，把当前索引扔进去当下次计算的参照物 */
-   var longestValidParentheses = function(s) {
+var longestValidParentheses = function (s) {
     let maxLen = 0, stack = [];
     stack.push(-1);
     for (let i = 0; i < s.length; i++) {
@@ -287,18 +287,18 @@ var nextPermutation = function (nums) {
             stack.push(i);
         } else {
             stack.pop();
-            if (stack.length) { 
-                let curMaxLen = i - stack[stack.length - 1]; 
+            if (stack.length) {
+                let curMaxLen = i - stack[stack.length - 1];
                 maxLen = Math.max(maxLen, curMaxLen);
             } else {
-                stack.push(i);    
+                stack.push(i);
             }
         }
     }
     return maxLen;
 };
 /* 思路2：动态规划 */
-var longestValidParentheses = function(s) {
+var longestValidParentheses = function (s) {
     const dp = Array(s.length).fill(0);
 
     for (let i = 1; i < s.length; i++) {
@@ -321,25 +321,25 @@ var longestValidParentheses = function(s) {
         }
     }
     return Math.max(...dp, 0);
-};  
+};
 
 /* 102.二叉树的层序遍历
 给你一个二叉树，请你返回其按 层序遍历 得到的节点值。 （即逐层地，从左到右访问所有节点）。 */
-var levelOrder = function(root){
+var levelOrder = function (root) {
     let res = [];
-    if(root === null){
+    if (root === null) {
         return res;
     }
     let queue = [root];
-    while(queue.length){
+    while (queue.length) {
         let len = queue.length, level = [];
-        for(let i = 0; i < len; i++){
+        for (let i = 0; i < len; i++) {
             let cur = queue.shift();
             level.push(cur.val);
-            if(cur.left){
+            if (cur.left) {
                 queue.push(cur.left);
             }
-            if(cur.right){
+            if (cur.right) {
                 queue.push(cur.right);
             }
         }
@@ -347,7 +347,7 @@ var levelOrder = function(root){
     }
     return res;
 }
-var levelOrder = function(root) {
+var levelOrder = function (root) {
     const ret = [];
     if (!root) {
         return ret;
@@ -365,7 +365,7 @@ var levelOrder = function(root) {
             if (node.right) q.push(node.right);
         }
     }
-        
+
     return ret;
 };
 
@@ -375,29 +375,115 @@ var levelOrder = function(root) {
     在传递给函数之前，nums 在预先未知的某个下标 k（0 <= k < nums.length）上进行了 旋转，使数组变为 [nums[k], nums[k+1], ..., nums[n-1], nums[0], nums[1], ..., nums[k-1]]（下标 从 0 开始 计数）。例如， [0,1,2,4,5,6,7] 在下标 3 处经旋转后可能变为 [4,5,6,7,0,1,2] 。
 
     给你 旋转后 的数组 nums 和一个整数 target ，如果 nums 中存在这个目标值 target ，则返回它的下标，否则返回 -1 。*/
-    var search = function(nums, target) {
-        if(!nums.length){
-            return -1;
-        }
-        let left = 0, right = nums.length - 1, mid;
-        while(left <= right){
-            mid = left + ((right - left) >> 1);
-            if(nums[mid] === target){
-                return mid;
-            }
-            if(nums[left] <= nums[mid]){
-                if (target >= nums[left] && target < nums[mid]) {
-                    right = mid -1;
-                } else {
-                    left = mid + 1;
-                }
-            } else {
-                if (target > nums[mid] && target <= nums[right]) {
-                    left = mid + 1;
-                } else {
-                    right = mid - 1;
-                }
-            }
-        }
+var search = function (nums, target) {
+    if (!nums.length) {
         return -1;
+    }
+    let left = 0, right = nums.length - 1, mid;
+    while (left <= right) {
+        mid = left + ((right - left) >> 1);
+        if (nums[mid] === target) {
+            return mid;
+        }
+        if (nums[left] <= nums[mid]) {
+            if (target >= nums[left] && target < nums[mid]) {
+                right = mid - 1;
+            } else {
+                left = mid + 1;
+            }
+        } else {
+            if (target > nums[mid] && target <= nums[right]) {
+                left = mid + 1;
+            } else {
+                right = mid - 1;
+            }
+        }
+    }
+    return -1;
+};
+
+/* 39.组合求和 
+给定一个无重复元素的正整数数组 candidates 和一个正整数 target ，找出 candidates 中所有可以使数字和为目标数 target 的唯一组合。
+
+candidates 中的数字可以无限制重复被选取。如果至少一个所选数字数量不同，则两种组合是唯一的。 
+
+对于给定的输入，保证和为 target 的唯一组合数少于 150 个。*/
+/* 思路：回溯，dfs */
+var combinationSum = function (candidates, target) {
+    let res = [];
+    let dfs = function (start, temp, sum) { // start是当前选择的起点索引 temp是当前的集合 sum是当前求和
+        if (sum >= target) {
+            if (sum === target) {
+                res.push(temp.slice()); // temp的拷贝 加入解集
+            }
+            return; // 结束当前递归
+        }
+        for (let i = start; i < candidates.length; i++) {// 枚举当前可选的数，从start开始
+            temp.push(candidates[i]); // 选这个数
+            dfs(i, temp, sum + candidates[i]); // 基于此继续选择，传i，下一次就不会选到i左边的数
+            temp.pop(); // 撤销选择，回到选择candidates[i]之前的状态，继续尝试选同层右边的数
+        }
     };
+    dfs(0, [], 0); // 最开始可选的数是从第0项开始的，传入一个空集合，sum也为0
+    return res;
+};
+
+/* 42.接雨水 
+给定 n 个非负整数表示每个宽度为 1 的柱子的高度图，计算按此排列的柱子，下雨之后能接多少雨水。*/
+/* 思路：第一眼，双指针；动态规划；单调栈 */
+// 双指针
+var trap = function (height) {
+    let ans = 0;
+    let left = 0, leftmax = 0, right = height.length - 1, rightmax = 0;
+    while (left < right) {
+        leftmax = Math.max(leftmax, height[left]);
+        rightmax = Math.max(rightmax, height[right]);
+        if (height[left] < height[right]) {
+            ans += leftmax - height[left];
+            ++left;
+        } else {
+            ans += rightmax - height[right];
+            --right;
+        }
+    }
+    return ans;
+};
+// 动态规划
+var trap = function (height) {
+    let ans = 0, n = height.length;
+    if (n == 0) {
+        return 0;
+    }
+    let leftmax = new Array(n).fill(0);
+    leftmax[0] = height[0];
+    for (let i = 1; i < n; i++) {
+        leftmax[i] = Math.max(leftmax[i - 1], height[i]);
+    }
+    let rightmax = new Array(n).fill(0);
+    rightmax[n - 1] = height[n - 1];
+    for (let i = n - 2; i >= 0; i--) {
+        rightmax[i] = Math.max(rightmax[i + 1], height[i]);
+    }
+    for (let i = 1; i < n; i++) {
+        ans += Math.min(leftmax[i], rightmax[i]) - height[i];
+    }
+    return ans;
+}
+// 单调栈
+let ans = 0;
+    const stack = [];
+    const n = height.length;
+    for (let i = 0; i < n; ++i) {
+        while (stack.length && height[i] > height[stack[stack.length - 1]]) {
+            const top = stack.pop();
+            if (!stack.length) {
+                break;
+            }
+            const left = stack[stack.length - 1];
+            const currWidth = i - left - 1;
+            const currHeight = Math.min(height[left], height[i]) - height[top];
+            ans += currWidth * currHeight;
+        }
+        stack.push(i);
+    }
+    return ans;
