@@ -471,19 +471,73 @@ var trap = function (height) {
 }
 // 单调栈
 let ans = 0;
-    const stack = [];
-    const n = height.length;
-    for (let i = 0; i < n; ++i) {
-        while (stack.length && height[i] > height[stack[stack.length - 1]]) {
-            const top = stack.pop();
-            if (!stack.length) {
-                break;
-            }
-            const left = stack[stack.length - 1];
-            const currWidth = i - left - 1;
-            const currHeight = Math.min(height[left], height[i]) - height[top];
-            ans += currWidth * currHeight;
+const stack = [];
+const n = height.length;
+for (let i = 0; i < n; ++i) {
+    while (stack.length && height[i] > height[stack[stack.length - 1]]) {
+        const top = stack.pop();
+        if (!stack.length) {
+            break;
         }
-        stack.push(i);
+        const left = stack[stack.length - 1];
+        const currWidth = i - left - 1;
+        const currHeight = Math.min(height[left], height[i]) - height[top];
+        ans += currWidth * currHeight;
     }
-    return ans;
+    stack.push(i);
+}
+return ans;
+
+/*46.全排列
+回溯经典问题*/
+var permute = function (nums) {
+    const res = [], path = [];
+    backTracking(nums, nums.length, []);
+    return res;
+    function backTracking(n, k, used) {
+        if (path.length === k) {
+            res.push(Array.from(path));
+            return;
+        }
+        for (let i = 0; i < k; i++) {
+            if (used[i]) {
+                continue;
+            }
+            path.push(n[i]);
+            used[i] = true;
+            backTracking(n, k, used);
+            path.pop();
+            used[i] = false;
+        }
+    }
+}
+
+/* 48.旋转图像
+二维矩阵顺时针旋转90° */
+var rotate = function (matrix) {
+    const n = matrix[0].length;
+    for (let i = 0; i < Math.floor(n / 2); i++) {
+        for (let j = 0; j < Math.floor((n + 1) / 2); j++) {
+            let temp = matrix[i][j];
+            matrix[i][j] = matrix[n - j - 1][i];
+            matrix[n - j - 1][i] = matrix[n - i - 1][n - j - 1];
+            matrix[n - i - 1][n - j - 1] = matrix[j][n - i - 1];
+            matrix[j][n - i - 1] = temp;
+        }
+    }
+};
+/* 先水平轴旋转，再主对角线旋转 */
+var rotate = function (matrix) {
+    const n = matrix[0].length;
+    for (let i = 0; i < Math.floor(n / 2); i++) {
+        for (let j = 0; j < n; j++) {
+            [matrix[i][j], matrix[n - i - 1][j]] = [matrix[n - i - 1][j], matrix[i][j]];
+        }
+    }
+    for (let i = 0; i < n; i++) {
+        for (let j = 0; j < i; j++) {
+            [matrix[i][j], matrix[j][i]] = [matrix[j][i], matrix[i][j]];
+        }
+    }
+};
+
