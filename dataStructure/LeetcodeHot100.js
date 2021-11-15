@@ -541,3 +541,34 @@ var rotate = function (matrix) {
     }
 };
 
+/* 49.字母异位词分组
+给你一个字符串数组，请你将 字母异位词 组合在一起。可以按任意顺序返回结果列表。
+
+字母异位词 是由重新排列源单词的字母得到的一个新单词，所有源单词中的字母都恰好只用一次。
+
+ 
+思路：1.排序；2.计数
+ */
+var groupAnagrams = function (strs) {
+    let res = new Map();
+    for (let str of strs) {
+        let arr = Array.from(str);
+        arr.sort();
+        let key = arr.toString();
+        let list = res.get(key) ? res.get(key) : new Array();
+        list.push(str);
+        res.set(key, list);
+    }
+    return Array.from(res.values());
+};
+var groupAnagrams = function (strs) {
+    const map = new Object();
+    for (let s of strs) {
+        const count = new Array(26).fill(0);
+        for (let c of s) {
+            count[c.charCodeAt() - 'a'.charCodeAt()]++;
+        }
+        map[count] ? map[count].push(s) : map[count] = [s];
+    }
+    return Object.values(map);
+};
