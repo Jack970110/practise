@@ -572,3 +572,68 @@ var groupAnagrams = function (strs) {
     }
     return Object.values(map);
 };
+
+/* 53.最大连续子序和
+暴力、动态规划 */
+// 最优为动态规划
+var maxSubArray = function(nums) {
+    let pre = 0, maxAns = nums[0];
+    nums.forEach((x) => {
+        pre = Math.max(pre + x, x);
+        maxAns = Math.max(maxAns, pre);
+    });
+    return maxAns;
+};
+var maxSubArray = function(nums) {
+    let res = Number.MIN_VALUE;
+    for(let i = 0; i < nums.length; i++) {
+        let sum = 0;
+        for(let j = i; j < nums.length; j++) {
+            sum += nums[j];
+            res = res > sum ? res : sum;
+        }
+    }
+    return res;
+};
+// 贪心：和为负数就归0，只适用于部分情况
+var maxSubArray = function(nums) {
+    let res = Number.MIN_VALUE, count = 0;
+    for(let i = 0; i < nums.length; i++){
+        count += nums[i];
+        if(count > res) {
+            res = count;
+        }
+        if(count < 0) {
+            count = 0;
+        }
+    }
+    return res;
+};
+
+/* 55.跳跃游戏
+思路：不应该把思路局限在跳几步上，思考跳的范围能否覆盖终点
+贪心 */
+var canJump = function(nums) {
+    if(nums.length === 1) return true;
+    let cover = 0;
+    for(let i = 0; i <= cover; i++) {
+        cover = Math.max(cover, i + nums[i])
+        if(cover >= nums.length - 1) {
+            return true;
+        }
+    }
+    return false;
+};
+var canJump = function(nums) {
+    const n = nums.length;
+    let rightmost = 0;
+    for (let i = 0; i < n; i++) {
+        if (i <= rightmost) {
+            rightmost = Math.max(rightmost, i + nums[i]);
+            if (rightmost >= n - 1) {
+                return true;
+            }
+        }
+    }
+    return false;
+};
