@@ -658,3 +658,204 @@ var merge = function (intervals) {
     result.push(prev)
     return result
 }
+
+/* 不同路径
+ 一个机器人位于一个 m x n 网格的左上角 （起始点在下图中标记为 “Start” ）。
+
+机器人每次只能向下或者向右移动一步。机器人试图达到网格的右下角（在下图中标记为 “Finish” ）。
+
+问总共有多少条不同的路径？
+
+经典动态规划、排列组合*/
+// dp
+var uniquePaths = function (m, n) {
+    let grid = new Array(m).fill(0).map(() => new Array(n).fill(0));
+    for (let i = 0; i < m; i++) {
+        grid[i][0] = 1;
+    }
+    for (let j = 0; j < n; j++) {
+        grid[0][j] = 1;
+    }
+    for (let i = 1; i < m; i++) {
+        for (let j = 1; j < n; j++) {
+            grid[i][j] = grid[i - 1][j] + grid[i][j - 1];
+        }
+    }
+    return grid[m - 1][n - 1];
+};
+// 排列组合
+var uniquePaths = function(m, n) {
+    var uniquePaths = function(m, n) {
+        let res = 1;
+        for (let x = m, y = 1; y < n; ++x, ++y) {
+            res = Math.floor(res * x / y);
+        }
+        return res;
+    };
+};
+
+/* 64.最小路径和
+给定一个包含非负整数的 m x n 网格 grid ，请找出一条从左上角到右下角的路径，使得路径上的数字总和为最小。
+
+说明：每次只能向下或者向右移动一步。 */
+var minPathSum = function(grid) {
+    const m = grid.length, n = grid[0].length;
+    let dp = new Array(m).fill(0).map(() => new Array(n).fill(0));
+    dp[0][0] = grid[0][0];
+    for (let i = 0; i < m; i++) {
+        for (let j = 0; j < n; j++) {
+            if (i == 0 && j != 0) {
+                dp[i][j] = dp[i][j - 1] + grid[i][j];
+            } else if (j == 0 && i != 0) {
+                dp[i][j] = dp[i - 1][j] + grid[i][j];
+            } else if (i != 0 && j != 0) {
+                dp[i][j] = Math.min(dp[i - 1][j], dp[i][j - 1]) + grid[i][j];
+            }
+        }
+    }
+    return dp[m - 1][n - 1];
+}
+
+/* 101.对称二叉树 给定一个二叉树，检查它是否是镜像对称的。递归*/
+var isSymmetric = function (root) {
+    if (!root) {
+        return true;
+    }
+    const isMirror = function (l, r) {
+        if (!l && !r) {
+            return true;
+        }
+        if (l && r && l.val == r.val &&
+            isMirror(l.left, r.right) &&
+            isMirror(l.right, r.left)) {
+            return true;
+        }
+        return false;
+    }
+    return isMirror(root.left, root.right);
+};
+
+/* 121.买卖股票的最佳时机 
+给定一个数组 prices ，它的第 i 个元素 prices[i] 表示一支给定股票第 i 天的价格。
+
+你只能选择 某一天 买入这只股票，并选择在 未来的某一个不同的日子 卖出该股票。设计一个算法来计算你所能获取的最大利润。
+
+返回你可以从这笔交易中获取的最大利润。如果你不能获取任何利润，返回 0 。
+
+来源：力扣（LeetCode）
+链接：https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。*/
+var maxProfit = function (prices) {
+    let end = 0;
+    let min = prices[0]
+    prices.forEach((element) => {
+        if (element < min) {
+            min = element
+        }
+        if (element - min > end) {
+            end = element - min
+        }
+    })
+    return end
+};
+
+/* 136.只出现一次的数字
+ 给定一个非空整数数组，除了某个元素只出现一次以外，其余每个元素均出现两次。找出那个只出现了一次的元素。*/
+ var singleNumber = function(nums) {
+    let ans = 0;
+    for(const num of nums) {
+        ans ^= num;
+    }
+    return ans;
+};
+
+/* 160.相交链表 
+给你两个单链表的头节点 headA 和 headB ，请你找出并返回两个单链表相交的起始节点。如果两个链表不存在相交节点，返回 null 。*/
+var getIntersectionNode = function (headA, headB) {
+    let visited = new Set();
+    let temp = headA;
+    while (temp) {
+        visited.add(temp);
+        temp = temp.next;
+    }
+    temp = headB;
+    while (temp) {
+        if (visited.has(temp)) {
+            return temp;
+        }
+        temp = temp.next;
+    }
+    return null;
+};
+
+/* 234.会问链表
+ 给你一个单链表的头节点 head ，请你判断该链表是否为回文链表。如果是，返回 true ；否则，返回 false 。*/
+ const reverseList = (head) => {
+    let prev = null;
+    let curr = head;
+    while (curr !== null) {
+        let nextTemp = curr.next;
+        curr.next = prev;
+        prev = curr;
+        curr = nextTemp;
+    }
+    return prev;
+}
+
+const endOfFirstHalf = (head) => {
+    let fast = head;
+    let slow = head;
+    while (fast.next !== null && fast.next.next !== null) {
+        fast = fast.next.next;
+        slow = slow.next;
+    }
+    return slow;
+}
+
+var isPalindrome = function(head) {
+    if (head == null) return true;
+
+    // 找到前半部分链表的尾节点并反转后半部分链表
+    const firstHalfEnd = endOfFirstHalf(head);
+    const secondHalfStart = reverseList(firstHalfEnd.next);
+
+    // 判断是否回文
+    let p1 = head;
+    let p2 = secondHalfStart;
+    let result = true;
+    while (result && p2 != null) {
+        if (p1.val != p2.val) result = false;
+        p1 = p1.next;
+        p2 = p2.next;
+    }        
+
+    // 还原链表并返回结果
+    firstHalfEnd.next = reverseList(secondHalfStart);
+    return result;
+};
+
+/* 283.移动零
+给定一个数组 nums，编写一个函数将所有 0 移动到数组的末尾，同时保持非零元素的相对顺序。
+快慢指针法， */
+var moveZeroes = function (nums) {
+    let fast = 0,
+        slow = 0;
+    while (fast < nums.length) {
+        if (nums[fast] != 0) {
+            [nums[fast], nums[slow]] = [nums[slow], nums[fast]];
+            slow++;
+        }
+        fast++;
+    }
+    return nums;
+};
+
+/* 338. 比特位计数
+给你一个整数 n ，对于 0 <= i <= n 中的每个 i ，计算其二进制表示中 1 的个数 ，返回一个长度为 n + 1 的数组 ans 作为答案。*/
+var countBits = function(n) {
+    const bits = new Array(n + 1).fill(0);
+    for (let i = 1; i <= n; i++) {
+        bits[i] = bits[i & (i - 1)] + 1;
+    }
+    return bits;
+}
