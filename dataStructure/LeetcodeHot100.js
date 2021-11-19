@@ -859,3 +859,41 @@ var countBits = function(n) {
     }
     return bits;
 }
+
+/* 543.二叉树的直径
+ 给定一棵二叉树，你需要计算它的直径长度。一棵二叉树的直径长度是任意两个结点路径长度中的最大值。这条路径可能穿过也可能不穿过根结点。*/
+var diameterOfBinaryTree = function (root) {
+    let res = 0
+    depth(root)
+    return res
+    function depth(node) {
+        if (!node) return 0 // 节点不存在返回0
+        let left = depth(node.left) // left为左子树的深度
+        let right = depth(node.right)//right 为右子树的深度
+        res = Math.max(left + right, res) //计算l+r 更新res
+        return Math.max(left, right) + 1 //返回该节点为根的子树的深度
+    }
+};
+/* 合并二叉树 
+给定两个二叉树，想象当你将它们中的一个覆盖到另一个上时，两个二叉树的一些节点便会重叠。
+
+你需要将他们合并为一个新的二叉树。合并的规则是如果两个节点重叠，那么将他们的值相加作为节点合并后的新值，否则不为 NULL 的节点将直接作为新二叉树的节点。
+
+来源：力扣（LeetCode）
+链接：https://leetcode-cn.com/problems/merge-two-binary-trees
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。*/
+var mergeTrees = function (root1, root2) {
+    const preOrder = function (root1, root2) {
+        if (!root1) {
+            return root2;
+        }
+        if (!root2) {
+            return root1;
+        }
+        root1.val += root2.val;
+        root1.left = preOrder(root1.left, root2.left);
+        root1.right = preOrder(root1.right, root2.right);
+        return root1;
+    }
+    return preOrder(root1, root2);
+};
