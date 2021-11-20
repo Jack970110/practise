@@ -6,7 +6,7 @@
   "scripts": {
     "serve": "webpack-dev-server"
   },
-  "author": "",
+  "author": "Jack0110",
   "license": "ISC",
   "devDependencies": {
     "webpack": "^5.11.0",
