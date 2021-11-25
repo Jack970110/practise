@@ -1037,3 +1037,208 @@ var maximalRectangle = function(matrix) {
     }
     return ret;
 };
+
+/* 124.二叉树中的最大路径和 
+路径 被定义为一条从树中任意节点出发，沿父节点-子节点连接，达到任意节点的序列。同一个节点在一条路径序列中 至多出现一次 。该路径 至少包含一个 节点，且不一定经过根节点。
+
+路径和 是路径中各节点值的总和。
+
+给你一个二叉树的根节点 root ，返回其 最大路径和 。
+
+来源：力扣（LeetCode）
+链接：https://leetcode-cn.com/problems/binary-tree-maximum-path-sum
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。*/
+var maxPathSum = (root) => {
+    let maxSum = Number.MIN_SAFE_INTEGER; // 最大路径和
+
+    const dfs = (root) => {
+        if (root == null) { // 遍历到null节点，收益0
+           return 0;
+        }
+        const left = dfs(root.left);   // 左子树提供的最大路径和
+        const right = dfs(root.right); // 右子树提供的最大路径和
+
+        const innerMaxSum = left + root.val + right; // 当前子树内部的最大路径和
+        maxSum = Math.max(maxSum, innerMaxSum);      // 挑战最大纪录
+
+        const outputMaxSum = root.val + Math.max(0, left, right); // 当前子树对外提供的最大和
+
+        // 如果对外提供的路径和为负，直接返回0。否则正常返回
+        return outputMaxSum < 0 ? 0 : outputMaxSum;
+    };
+
+    dfs(root);  // 递归的入口
+
+    return maxSum; 
+};
+
+/* 239.滑动窗口的最大值
+给你一个整数数组 nums，有一个大小为 k 的滑动窗口从数组的最左侧移动到数组的最右侧。你只可以看到在滑动窗口内的 k 个数字。滑动窗口每次只向右移动一位。
+
+返回滑动窗口中的最大值。
+
+ 输入：nums = [1,3,-1,-3,5,3,6,7], k = 3
+输出：[3,3,5,5,6,7]
+解释：
+滑动窗口的位置                最大值
+---------------               -----
+[1  3  -1] -3  5  3  6  7       3
+ 1 [3  -1  -3] 5  3  6  7       3
+ 1  3 [-1  -3  5] 3  6  7       5
+ 1  3  -1 [-3  5  3] 6  7       5
+ 1  3  -1  -3 [5  3  6] 7       6
+ 1  3  -1  -3  5 [3  6  7]      7
+*/
+/* 思路：暴力求解O（n*k），肯定不好，会超时；考虑每次只移动一位，可以维护一个队列，保存有可能是最大值的元素下标 */
+var maxSlidingWindow = function(nums, k) {
+    const q = [], result = []; //创建队列（存放可能最大元素下标），结果数组
+    for(let i = 0; i < nums.length; i++) {
+        while(q.length && nums[i] >= nums[q[q.length - 1]]) {// 队列不为空，且当前元素大于等于队尾所存下标的元素，则弹出队尾，目的是构建单调性，使队首为最大元素下标
+            q.pop();
+        }
+        q.push(i);
+        while(q[0] <= i - k) { // 判断队首元素是否在窗口内，不在就出队
+            q.shift();
+        }
+        if(i >= k - 1) {
+            result.push(nums[q[0]]); // 当达到窗口大小时，就可以向结果中push了
+        }
+    }
+    return result;
+}
+
+/* 297.二叉树的序列化与反序列化 
+序列化是将一个数据结构或者对象转换为连续的比特位的操作，进而可以将转换后的数据存储在一个文件或者内存中，同时也可以通过网络传输到另一个计算机环境，采取相反方式重构得到原数据。
+
+请设计一个算法来实现二叉树的序列化与反序列化。这里不限定你的序列 / 反序列化算法执行逻辑，你只需要保证一个二叉树可以被序列化为一个字符串并且将这个字符串反序列化为原始的树结构。
+
+*/
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val) {
+ *     this.val = val;
+ *     this.left = this.right = null;
+ * }
+ */
+
+/**
+ * Encodes a tree to a single string.
+ *
+ * @param {TreeNode} root
+ * @return {string}
+ */
+ var serialize = function(root) {
+    return rserialize(root, '');
+};
+
+/**
+ * Decodes your encoded data to tree.
+ *
+ * @param {string} data
+ * @return {TreeNode}
+ */
+var deserialize = function(data) {
+    const dataArray = data.split(",");
+    return rdeserialize(dataArray);
+};
+
+/**
+ * Your functions will be called as such:
+ * deserialize(serialize(root));
+ */
+const rserialize = (root, str) => {
+    if (root === null) {
+        str += "None,";
+    } else {
+        str += root.val + '' + ",";
+        str = rserialize(root.left, str);
+        str = rserialize(root.right, str);
+    }
+    return str;
+}
+
+const rdeserialize = (dataList) => {
+    if (dataList[0] === "None") {
+        dataList.shift();
+        return null;
+    }
+
+    const root = new TreeNode(parseInt(dataList[0]));
+    dataList.shift();
+    root.left = rdeserialize(dataList);
+    root.right = rdeserialize(dataList);
+
+    return root;
+}
+
+/* 301.删除无效的括号 
+给你一个由若干括号和字母组成的字符串 s ，删除最小数量的无效括号，使得输入的字符串有效。
+
+返回所有可能的结果。答案可以按 任意顺序 返回。*/
+// 解法1.BFS
+var removeInvalidParentheses = function (s) {
+    let res = [];
+    let queue = [];
+  
+    queue.push([s, 0]);
+   
+    while (queue.length > 0) {
+      s = queue.shift();
+      if (isVaild(s[0])) {
+        res.push(s[0]);
+      } else if (res.length == 0) {
+        let removei = s[1];
+        s = s[0];
+        for (; removei < s.length; removei++) {
+          if (
+            //保证是连续括号的第一个
+            (s[removei] == '(' || s[removei] === ')') &&
+            (removei === 0 || s[removei - 1] != s[removei])
+          ) {
+            let nexts = s.substring(0, removei) + s.substring(removei + 1);
+            //此时删除位置的下标 removei 就是下次删除位置的开始
+            queue.push([nexts, removei]);
+          }
+        }
+      }
+    }
+    return res;
+  };
+  
+  function isVaild(s) {
+    let count = 0;
+    for (let i = 0; i < s.length; i++) {
+      if (s[i] === '(') {
+        count++;
+      } else if (s[i] === ')') {
+        count--;
+      }
+      if (count < 0) {
+        return false;
+      }
+    }
+    return count === 0;
+  }
+
+  /* 312.戳气球
+  有 n 个气球，编号为0 到 n - 1，每个气球上都标有一个数字，这些数字存在数组 nums 中。
+
+现在要求你戳破所有的气球。戳破第 i 个气球，你可以获得 nums[i - 1] * nums[i] * nums[i + 1] 枚硬币。 这里的 i - 1 和 i + 1 代表和 i 相邻的两个气球的序号。如果 i - 1或 i + 1 超出了数组的边界，那么就当它是一个数字为 1 的气球。
+
+求所能获得硬币的最大数量。 */
+var maxCoins = function (nums) {
+    let n = nums.length;
+    // 添加两侧的虚拟气球
+    let points = [1, ...nums, 1];
+    let dp = Array.from(Array(n + 2), () => Array(n + 2).fill(0));
+    // 最后一行开始遍历,从下往上
+    for (let i = n; i >= 0; i--) {
+        // 从左往右
+        for (let j = i + 1; j < n + 2; j++) {
+            for (let k = i + 1; k < j; k++) {
+                dp[i][j] = Math.max(dp[i][j], points[j] * points[k] * points[i] + dp[i][k] + dp[k][j]);
+            }
+        }
+    }
+    return dp[0][n + 1];
+};
