@@ -1242,3 +1242,70 @@ var maxCoins = function (nums) {
     }
     return dp[0][n + 1];
 };
+
+/* 96.不同的二叉搜索树
+ 给你一个整数 n ，求恰由 n 个节点组成且节点值从 1 到 n 互不相同的 二叉搜索树 有多少种？返回满足题意的二叉搜索树的种数。*/
+/* 动态规划:根节点不同，二叉搜索树就会不同，根据二叉搜索树性质，n个节点中，第i个节点为根节点的二叉树=前i-1个节点构成数目*后n-i个节点构成数目，不断递归，
+ 边界条件G[0]=1.*/
+var numTrees = function (n) {
+    let G = new Array(n + 1).fill(0);
+    G[0] = 1;
+    G[1] = 1;
+    for (let i = 2; i <= n; i++) {
+        for (let j = 1; j <= i; j++) {
+            G[i] += G[j - 1] * G[i - j];
+        }
+    }
+    return G[n];
+};
+// 数学方法
+/* C0 = 1， Cn+1 = 2(2n+1)/(n+2) *Cn */
+var numTrees = function (n) {``
+    let C = 1;
+    for (let i = 0; i < n; ++i) {
+        C = C * 2 * (2 * i + 1) / (i + 2);
+    }
+    return C;
+}
+
+/* 98.验证二叉搜索树 
+给你一个二叉树的根节点 root ，判断其是否是一个有效的二叉搜索树。
+
+有效 二叉搜索树定义如下：
+
+节点的左子树只包含 小于 当前节点的数。
+节点的右子树只包含 大于 当前节点的数。
+所有左子树和右子树自身必须也是二叉搜索树。*/
+// 递归判断
+const helper = function(root, lower, upper) {
+    if(root = null) {
+        return true;
+    }
+    if(root.val <= lower || root.val >= upper) {
+        return false;
+    }
+    return helper(root.left, lower, root.val) && helper(root.right, root.val, upper);
+}
+var isValidBST = function(root) {
+    return helper(root, -Infinity, Infinity);
+}
+// 中序遍历
+var isValidBST = function(root) {
+    let stack = [];
+    let inorder = -Infinity;
+
+    while (stack.length || root !== null) {
+        while (root !== null) {
+            stack.push(root);
+            root = root.left;
+        }
+        root = stack.pop();
+        // 如果中序遍历得到的节点的值小于等于前一个 inorder，说明不是二叉搜索树
+        if (root.val <= inorder) {
+            return false;
+        }
+        inorder = root.val;
+        root = root.right;
+    }
+    return true;
+};
