@@ -1309,3 +1309,46 @@ var isValidBST = function(root) {
     }
     return true;
 };
+
+/* 105.从前序与中序遍历序列构造二叉树 
+给定一棵树的前序遍历 preorder 与中序遍历  inorder。请构造二叉树并返回其根节点。*/
+var buildTree = function (preOrder, inOrder) {
+    if (!preOrder.length) {
+        return null;
+    }
+    let root = new TreeNode(preOrder[0]);
+    let mid = inOrder.findIndex((num) => num === root.val);
+    root.left = buildTree(preOrder.slice(1, mid + 1), inOrder.slice(0, mid));
+    root.right = buildTree(preOrder.slice(mid + 1, preOrder.length), inOrder.slice(mid + 1, inOrder.length));
+    return root;
+}
+
+/* 114.二叉树展开为链表
+ 给你二叉树的根结点 root ，请你将它展开为一个单链表：
+
+展开后的单链表应该同样使用 TreeNode ，其中 right 子指针指向链表中下一个结点，而左子指针始终为 null 。
+展开后的单链表应该与二叉树 先序遍历 顺序相同。
+思路：本质上来讲并没有转换成链表，而是将一颗二叉树抓变为只有右节点的二叉树，看起来像是一个链表；要求先序遍历，那就可以用先序遍历的思路去迭代转变*/
+var flatten = function (root) {
+    if (!root) {
+        return;
+    }
+    let stack = [];
+    stack.push(root);
+    let prev = null;
+    while (stack.length) {
+        let cur = stack.pop();
+        if (prev !== null) {
+            prev.left = null;
+            prev.right = cur;
+        }
+        let left = cur.left, right = cur.right;
+        if (right !== null) { //考虑栈的后进先出，要先push右节点以保证先序遍历
+            stack.push(right);
+        }
+        if (left !== null) {
+            stack.push(left);
+        }
+        prev = cur;
+    }
+}
