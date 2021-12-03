@@ -1398,3 +1398,99 @@ var longestConsecutive = function (nums) {
 
     return maxCount;
 };
+
+/* 224.基本计算器 
+给你一个字符串表达式 s ，请你实现一个基本计算器来计算并返回它的值。
+1 <= s.length <= 3 * 105
+s 由数字、'+'、'-'、'('、')'、和 ' ' 组成
+s 表示一个有效的表达式
+只有+-，可以选择把括号去掉，转变为普通计算式计算*/
+var calculate = function(s) {
+    let stack = []; //栈顶记录当前符号
+    stack.push(1); //默认为正
+    let res = 0, num = 0, op = 1;
+    for (let i = 0; i < s.length; i++) { //空格可以不管，直接忽略
+        if (s[i] >= '0' && s[i] <= '9') { //取出完整数值
+            num = num * 10 + (s[i] - '0');
+            continue;
+        }
+        res += op * num; //计算一个运算符
+        num = 0; //数值清空
+        if (s[i] == '+') {
+            op = stack[stack.length - 1];
+        } else if (s[i] == '-') {
+            op = -stack[stack.length - 1];
+        } else if (s[i] == '(') { //进入左括号，把左括号之前的符号置于栈顶
+            stack.push(op); 
+        } else if (s[i] == ')') {//退出括号，弹出栈顶符号
+            stack.pop();
+        }     
+    }
+    res += op * num; //计算最后一个数
+    return res;
+};
+
+/* 剑指offer 087 复原ip
+给定一个只包含数字的字符串 s ，用以表示一个 IP 地址，返回所有可能从 s 获得的 有效 IP 地址 。你可以按任何顺序返回答案。
+
+有效 IP 地址 正好由四个整数（每个整数位于 0 到 255 之间组成，且不能含有前导 0），整数之间用 '.' 分隔。 */
+var restoreIpAddresses = function(str) {
+    let list = [], l = str.length;
+        // 直接暴力分割
+        for (let i = 1; i < 4; i++) {
+            for (let j = i + 1; j < i + 4; j++) {
+                for (let k = j + 1; k < j + 4; k++) {
+                    let a = str.slice(0, i);
+                    let b = str.slice(i, j);
+                    let c = str.slice(j, k);
+                    let d = str.slice(k, l);
+                    if (check(a) && check(b) && check(c) && check(d)) {
+                        list.push(a + '.' + b + '.' + c + '.' + d)
+                    }
+                }
+            }
+        }
+    return list;
+    function check(s) {
+        let n = parseInt(s)
+        if (n + '' != s) {
+            return false;
+        }
+        if (n >= 0 && n <= 255) {
+            return true;
+        }
+        return false;
+    }
+};
+var restoreIpAddresses = function(s) {
+    let len = s.length
+    if( len > 12 || len < 4 || !/^\d+$/.test(s)){
+        return []
+    }
+    let res = []
+    function slice(s,str,n){
+        if(s.length < n) return
+        if(n === 1){
+            if(check(s)){
+                res.push(str + s)
+            }
+            return;
+        }
+        n--
+        if(check(s.slice(0,1))){
+            slice(s.slice(1),str + s.slice(0,1)+'.',n)
+        }
+        if(check(s.slice(0,2))){
+            slice(s.slice(2),str + s.slice(0,2)+'.',n)
+        }
+        if(check(s.slice(0,3))){
+            slice(s.slice(3),str + s.slice(0,3)+'.',n)
+        }
+    }
+
+    function  check(s) {
+        return !((+s[0] === 0 && s.length > 1) || +s > 255);
+    }
+    slice(s,'',4)
+    return res
+};
