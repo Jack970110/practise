@@ -4,7 +4,7 @@ class Dep {
     }
     // 追加订阅者
     depend() {
-        if(activeUpdate) { // activeUpdate注册为订阅者
+        if (activeUpdate) { // activeUpdate注册为订阅者
             this.subscribers.add(activeUpdate)
         }
 
@@ -18,28 +18,28 @@ class Dep {
 }
 let activeUpdate
 function reactive(target) {
-   return createReactiveObject(target)
+    return createReactiveObject(target)
 }
 let toProxyMap = new WeakMap()
 let toRawMap = new WeakMap()
 function createReactiveObject(target) {
     let dep = new Dep()
-    if(!isObject(target)) return target
+    if (!isObject(target)) return target
     // reactive(obj)
     // reactive(obj)
     // reactive(obj)
     // target已经代理过了，直接返回，不需要再代理了
-    if(toProxyMap.has(target)) return toProxyMap.get(target)
+    if (toProxyMap.has(target)) return toProxyMap.get(target)
     // 防止代理对象再被代理
     // reactive(proxy)
     // reactive(proxy)
     // reactive(proxy)
-    if(toRawMap.has(target)) return target
+    if (toRawMap.has(target)) return target
     const handler = {
         get(target, key, receiver) {
             let res = Reflect.get(target, key, receiver)
             // 收集依赖
-            if(activeUpdate) {
+            if (activeUpdate) {
                 dep.depend()
             }
             // 递归代理
@@ -49,11 +49,11 @@ function createReactiveObject(target) {
         set(target, key, val, receiver) {
             let hadKey = hasOwn(target, key)
             let oldVal = target[key]
-            let res = Reflect.set(target, key, val,receiver)
-            if(!hadKey) {
+            let res = Reflect.set(target, key, val, receiver)
+            if (!hadKey) {
                 // console.log('新增属性', key)
                 dep.notify()
-            } else if(oldVal !== val) {
+            } else if (oldVal !== val) {
                 // console.log('修改属性', key)
                 dep.notify()
             }
@@ -83,7 +83,7 @@ function autoRun(update) {
     }
     wrapperUpdate();
 }
-let obj = {name: 'hello', arr: [1, 2,3]}
+let obj = { name: 'hello', arr: [1, 2, 3] }
 let proxy = reactive(obj)
 // 响应式
 autoRun(() => {

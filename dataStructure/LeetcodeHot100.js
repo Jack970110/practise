@@ -1568,3 +1568,51 @@ const wordBreak = (s, wordDict) => {
     }
     return false; // BFS完所有节点（考察了所有划分的可能）都没返回true，则返回false
   };
+
+  /* 142.环形链表 
+  给定一个链表，返回链表开始入环的第一个节点。 如果链表无环，则返回 null。
+
+如果链表中有某个节点，可以通过连续跟踪 next 指针再次到达，则链表中存在环。 为了表示给定链表中的环，评测系统内部使用整数 pos 来表示链表尾连接到链表中的位置（索引从 0 开始）。如果 pos 是 -1，则在该链表中没有环。注意：pos 不作为参数进行传递，仅仅是为了标识链表的实际情况。
+
+不允许修改 链表。
+*/
+// 哈希表思路，遍历链表，开始重复的第一个节点就是入环点
+var detectCycle = function(head) {
+    let visited = new Set();
+    while(head) {
+        if(visited.has(head)) {
+            return head;
+        }
+        visited.add(head);
+        head = head.next;
+    }
+    return null;
+};
+// 快慢指针思路，a+(n+1)b+nc=2(a+b)⟹a=c+(n−1)(b+c) =》 a=c+(n-1)(b+c)a=c+(n−1)(b+c) ；从相遇点到入环点的距离加上 n-1n−1 圈的环长，恰好等于从链表头部到入环点的距离。
+
+//因此，当发现 slow与 fast 相遇时，我们再额外使用一个指针ptr。起始，它指向链表头部；随后，它和slow 每次向后移动一个位置。最终，它们会在入环点相遇。
+
+
+var detectCycle = function(head) {
+    if(head === null) {
+        return null;
+    }
+    let fast = head, slow = head;
+    while(fast) {
+        slow = slow.next;
+        if(fast.next !== null) {
+            fast = fast.next.next;
+        } else {
+            return null;
+        }
+        if(fast === slow) {
+            let ptr = head;
+            while(ptr !== slow) {
+                ptr = ptr.next;
+                slow = slow.next;
+            }
+            return ptr;
+        }
+    }
+    return null;
+};
