@@ -1763,3 +1763,71 @@ var sortList = function(head) {
     }
     return dummyHead.next;
 };
+
+/*152.乘积最大的子数组
+给你一个整数数组nums，请你找出数组中乘积最大的连续子数组（该数组中至少包含一个数字），并返回该子数组对应的乘积。
+思路：动态规划
+
+状态定义：dp[i][0]表示从第 0 项到第 i 项范围内的子数组的最小乘积，dp[i][1]表示从第 0 项到第 i 项范围内的子数组的最大乘积
+
+初始状态：dp[0][0]=nums[0], dp[0][1]=nums[0]
+
+分情况讨论:
+
+不和别人乘，就 nums[i]自己
+num[i] 是负数，希望乘上前面的最大积
+num[i] 是正数，希望乘上前面的最小积
+状态转移方程：
+
+dp[i] [0]=min(dp[i−1] [0]∗num[i] , dp[i−1] [1] ∗ num[i], num[i])
+dp[i] [1]=max(dp[i−1] [0]∗num[i] , dp[i−1] [1] ∗ num[i], num[i])
+状态压缩：dp[i][x]只与dp[i][x]-1，所以只需定义两个变量，prevMin = nums[0]，prevMax = nums[0]
+
+状态压缩之后的方程：
+
+prevMin = Math.min(prevMin * num[i], prevMax * num[i], nums[i])
+prevMax = Math.max(prevMin * num[i], prevMax * num[i], nums[i]) */
+var maxProduct = function(nums) {
+    let res = nums[0], preMin = nums[0], preMax = nums[0];
+    let temp1 = 0, temp2 = 0;
+    for(let i = 1; i < nums.length; i++) {
+        temp1 = preMin * nums[i];
+        temp2 = preMax * nums[i];
+        preMin = Math.min(temp1, temp2, nums[i]);
+        preMax = Math.max(temp1, temp2, nums[i]);
+        res = Math.max(res, preMax);
+    }
+    return res;
+};
+
+/* 198.打家劫舍
+ 你是一个专业的小偷，计划偷窃沿街的房屋。每间房内都藏有一定的现金，影响你偷窃的唯一制约因素就是相邻的房屋装有相互连通的防盗系统，如果两间相邻的房屋在同一晚上被小偷闯入，系统会自动报警。
+
+给定一个代表每个房屋存放金额的非负整数数组，计算你 不触动警报装置的情况下 ，一夜之内能够偷窃到的最高金额。
+动态规划：一家必偷，两家挑最大，三家以上：dp[i] = Math.max(dp[i-1], dp[i-2] + nums[i])*/
+var rob = function(nums) {
+    if(!nums.length) {
+        return 0;
+    }
+    let n = nums.length, dp = new Array(n).fill(0);
+    dp[0] = nums[0], dp[1] =Math.max(nums[0], nums[1]);
+    for(let i = 2; i < n; i++){
+        dp[i] = Math.max(dp[i-1], dp[i-2] + nums[i]);
+    }
+    return dp[n-1];
+};
+var rob = function(nums) {
+    if(!nums.length) {
+        return 0;
+    }
+    if(nums.length === 1) {
+        return nums[0];
+    }
+    let n = nums.length, first = nums[0], second = Math.max(nums[0], nums[1]);
+    for(let i = 2; i < n; i++){
+        let temp = second;
+        second = Math.max(first + nums[i], second);
+        first = temp;
+    }
+    return second;
+};
