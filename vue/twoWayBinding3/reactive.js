@@ -109,9 +109,9 @@ function hasOwn(obj, key) {
 /* let obj = { name: 'hello', arr: [1, 2, 3] }
 let proxy = reactive(obj)
 obj.name = 'xxx' // 修改proxy.name, 自动执行autoRun的回调函数，打印新值 */
-let proxy = reactive({name:'zf'});
+let proxy = reactive({name:[1,2,3]});
 effect(()=>{
     console.log(proxy.name);
 })
-proxy.name = 'jw';
-proxy.name = 'jw';
+proxy.name.push(4);
+proxy.name.push(4);

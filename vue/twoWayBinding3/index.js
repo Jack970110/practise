@@ -87,6 +87,9 @@ let obj = { name: 'hello', arr: [1, 2, 3] }
 let proxy = reactive(obj)
 // 响应式
 autoRun(() => {
-    console.log(proxy.name)
+    console.log(proxy.name);
+    console.log(proxy.arr);
 })
 proxy.name = 'xxx' // 修改proxy.name, 自动执行autoRun的回调函数，打印新值
+proxy.arr.push(4);
+console.log(proxy.arr);
