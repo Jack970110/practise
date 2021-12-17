@@ -1903,3 +1903,85 @@ function turnZero(queue, grid) {
         }
     }
 }
+/* 207.课程表 
+你这个学期必须选修 numCourses 门课程，记为 0 到 numCourses - 1 。
+
+在选修某些课程之前需要一些先修课程。 先修课程按数组 prerequisites 给出，其中 prerequisites[i] = [ai, bi] ，表示如果要学习课程 ai 则 必须 先学习课程  bi 。
+
+例如，先修课程对 [0, 1] 表示：想要学习课程 0 ，你需要先完成课程 1 。
+请你判断是否可能完成所有课程的学习？如果可以，返回 true ；否则，返回 false 。*/
+var canFinish = function(numCourses, prerequisites) {
+    const inDegree = new Array(numCourses).fill(0); // 入度数组
+  const map = {};                                 // 邻接表
+  for (let i = 0; i < prerequisites.length; i++) {
+    inDegree[prerequisites[i][0]]++;              // 求课的初始入度值
+    if (map[prerequisites[i][1]]) {               // 当前课已经存在于邻接表
+      map[prerequisites[i][1]].push(prerequisites[i][0]); // 添加依赖它的后续课
+    } else {                                      // 当前课不存在于邻接表
+      map[prerequisites[i][1]] = [prerequisites[i][0]];
+    }
+  }
+  const queue = [];
+  for (let i = 0; i < inDegree.length; i++) { // 所有入度为0的课入列
+    if (inDegree[i] == 0) queue.push(i);
+  }
+  let count = 0;
+  while (queue.length) {
+    const selected = queue.shift();           // 当前选的课，出列
+    count++;                                  // 选课数+1
+    const toEnQueue = map[selected];          // 获取这门课对应的后续课
+    if (toEnQueue && toEnQueue.length) {      // 确实有后续课
+      for (let i = 0; i < toEnQueue.length; i++) {
+        inDegree[toEnQueue[i]]--;             // 依赖它的后续课的入度-1
+        if (inDegree[toEnQueue[i]] == 0) {    // 如果因此减为0，入列
+          queue.push(toEnQueue[i]);
+        }
+      }
+    }
+  }
+  return count == numCourses; // 选了的课等于总课数，true，否则false
+}
+
+/* 208.实现Trie(前缀树)
+Trie（发音类似 "try"）或者说 前缀树 是一种树形数据结构，用于高效地存储和检索字符串数据集中的键。这一数据结构有相当多的应用情景，例如自动补完和拼写检查。
+
+请你实现 Trie 类：
+
+Trie() 初始化前缀树对象。
+void insert(String word) 向前缀树中插入字符串 word 。
+boolean search(String word) 如果字符串 word 在前缀树中，返回 true（即，在检索之前已经插入）；否则，返回 false 。
+boolean startsWith(String prefix) 如果之前已经插入的字符串 word 的前缀之一为 prefix ，返回 true ；否则，返回 false 。 */
+var Trie = function() {
+    this.children = {};
+};
+
+Trie.prototype.insert = function(word) {
+    let node = this.children;
+    for (const ch of word) {
+        if (!node[ch]) {
+            node[ch] = {};
+        }
+        node = node[ch];
+    }
+    node.isEnd = true;
+};
+
+Trie.prototype.searchPrefix = function(prefix) {
+    let node = this.children;
+    for (const ch of prefix) {
+        if (!node[ch]) {
+            return false;
+        }
+        node = node[ch];
+    }
+    return node;
+}
+
+Trie.prototype.search = function(word) {
+    const node = this.searchPrefix(word);
+    return node !== undefined && node.isEnd !== undefined;
+};
+
+Trie.prototype.startsWith = function(prefix) {
+    return this.searchPrefix(prefix);
+};
