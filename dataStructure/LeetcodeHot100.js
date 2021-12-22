@@ -2055,3 +2055,50 @@ var maximalSquare = function(matrix) {
     } 
     return max * max;
 };
+
+/* 236.二叉树的最近公共祖先
+ 给定一个二叉树, 找到该树中两个指定节点的最近公共祖先。
+
+百度百科中最近公共祖先的定义为：“对于有根树 T 的两个节点 p、q，最近公共祖先表示为一个节点 x，满足 x 是 p、q 的祖先且 x 的深度尽可能大（一个节点也可以是它自己的祖先）。”*/
+/* 思路：深度优先搜索
+ 最近公共祖先判断条件：(lson && rson)∣∣((x = p∣∣x = q) && (lson​∣∣rson​))
+(lson && rson)表示两个节点pq各在当前节点的一条子树上，((x = p∣∣x = q) && (lson​∣∣rson​))表示当前节点为两个节点中的一个，且另一个在当前节点的子树上
+由于布尔值是从叶子结点开始赋值的，所以满足条件时，最近的祖先肯定会先访问到，满足题意*/
+var lowestCommonAncestor = function(root, p, q) {
+    let res;
+    const dfs = function(root, p, q){
+        if(root === null) {
+            return false;
+        }
+        const lson = dfs(root.left, p, q);
+        const rson = dfs(root.right, p, q);
+        if((lson && rson) || ((root.val === p.val || root.val === q.val) && (lson || rson))) {
+            res = root;
+        }
+        return lson || rson || (root.val === p.val || root.val === q.val);
+    }
+    dfs(root, p, q);
+    return res;
+};
+var lowestCommonAncestor = function(root, p, q) {
+    // 使用递归的方法
+    // 需要从下到上，所以使用后序遍历
+    // 1. 确定递归的函数
+    const travelTree = function(root,p,q) {
+        // 2. 确定递归终止条件
+        if(root === null || root === p||root === q) {
+            return root;
+        }
+        // 3. 确定递归单层逻辑
+        let left = travelTree(root.left,p,q);
+        let right = travelTree(root.right,p,q);
+        if(left !== null&&right !== null) {
+            return root;
+        }
+        if(left ===null) {
+            return right;
+        }
+        return left;
+    }
+   return  travelTree(root,p,q)
+};
