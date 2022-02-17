@@ -2102,3 +2102,105 @@ var lowestCommonAncestor = function(root, p, q) {
     }
    return  travelTree(root,p,q)
 };
+/* 238.除自身以外数组的乘积
+给你一个整数数组 nums，返回 数组 answer ，其中 answer[i] 等于 nums 中除 nums[i] 之外其余各元素的乘积 。
+
+题目数据 保证 数组 nums之中任意元素的全部前缀元素和后缀的乘积都在  32 位 整数范围内。
+
+请不要使用除法，且在 O(n) 时间复杂度内完成此题。*/
+
+/* 左右两侧乘积法 不开辟左右空间：O（n）， O（1）*/
+var productExceptSelf = function(nums) {
+    let n = nums.length;
+    let res = new Array(n);
+    res[0] = 1;
+    for(let i = 1; i < n; i++ ){
+        res[i] = nums[i-1] * res[i-1];
+    }
+    let rightRes = 1;
+    for(let i = n-1; i >= 0; i--){
+        res[i] *= rightRes;
+        rightRes *= nums[i];
+    }
+    return res;
+};
+/* 左右两侧乘积 开辟左右空间： O（n）， O（n） */
+var productExceptSelf = function(nums) {
+    const length = nums.length;
+
+    // L 和 R 分别表示左右两侧的乘积列表
+    const L = new Array(length);
+    const R = new Array(length);
+
+    const answer = new Array(length);
+
+    // L[i] 为索引 i 左侧所有元素的乘积
+    // 对于索引为 '0' 的元素，因为左侧没有元素，所以 L[0] = 1
+    L[0] = 1;
+    for (let i = 1; i < length; i++) {
+        L[i] = nums[i - 1] * L[i - 1];
+    }
+
+    // R[i] 为索引 i 右侧所有元素的乘积
+    // 对于索引为 'length-1' 的元素，因为右侧没有元素，所以 R[length-1] = 1
+    R[length - 1] = 1;
+    for (let i = length - 2; i >= 0; i--) {
+        R[i] = nums[i + 1] * R[i + 1];
+    }
+
+    // 对于索引 i，除 nums[i] 之外其余各元素的乘积就是左侧所有元素的乘积乘以右侧所有元素的乘积
+    for (let i = 0; i < length; i++) {
+        answer[i] = L[i] * R[i];
+    }
+
+    return answer;
+};
+
+/* 240. 搜索二维矩阵
+ 编写一个高效的算法来搜索 m x n 矩阵 matrix 中的一个目标值 target 。该矩阵具有以下特性：
+
+每行的元素从左到右升序排列。
+每列的元素从上到下升序排列。
+ */
+/* 二分 */
+var searchMatrix = function(matrix, target) {
+    for (const row of matrix) {
+        const index = search(row, target);
+        if (index >= 0) {
+            return true;
+        }
+    }
+    return false;
+};
+
+const search = (nums, target) => {
+    let low = 0, high = nums.length - 1;
+    while (low <= high) {
+        const mid = Math.floor((high - low) / 2) + low;
+        const num = nums[mid];
+        if (num === target) {
+            return mid;
+        } else if (num > target) {
+            high = mid - 1;
+        } else {
+            low = mid + 1;
+        }
+    }
+    return -1;
+}
+/* z字形查找 */
+var searchMatrix = function(matrix, target) {
+    const m = matrix.length, n = matrix[0].length;
+    let x = 0, y = n - 1;
+    while (x < m && y >= 0) {
+        if (matrix[x][y] === target) {
+            return true;
+        }
+        if (matrix[x][y] > target) {
+            --y;
+        } else {
+            ++x;
+        }
+    }
+    return false;
+};
