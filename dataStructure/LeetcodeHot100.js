@@ -2204,3 +2204,100 @@ var searchMatrix = function(matrix, target) {
     }
     return false;
 };
+
+/* 279.完全平方数 
+给你一个整数 n ，返回 和为 n 的完全平方数的最少数量 。
+
+完全平方数 是一个整数，其值等于另一个整数的平方；换句话说，其值等于一个整数自乘的积。例如，1、4、9 和 16 都是完全平方数，而 3 和 11 不是。*/
+/* 动态规划：O（n*n1/2），O（n） */
+var numSquares = function(n) {
+    let f = new Array(n+1).fill(0);
+    for(let i = 1; i <= n; i++) {
+        let minn = Number.MAX_VALUE;
+        for(let j = 1; j * j <= i; j++) {
+            minn = Math.min(minn, f[i - j*j]);
+        }
+        f[i] = minn + 1;
+    }
+    return f[n];
+}
+/* 四平方和定理 */
+var numSquares = function(n) {
+    if (isPerfectSquare(n)) {
+        return 1;
+    }
+    if (checkAnswer4(n)) {
+        return 4;
+    }
+    for (let i = 1; i * i <= n; i++) {
+        let j = n - i * i;
+        if (isPerfectSquare(j)) {
+            return 2;
+        }
+    }
+    return 3;
+}
+
+// 判断是否为完全平方数
+const isPerfectSquare = (x) => {
+    const y = Math.floor(Math.sqrt(x));
+    return y * y == x;
+}
+
+// 判断是否能表示为 4^k*(8m+7)
+const checkAnswer4 = (x) => {
+    while (x % 4 == 0) {
+        x /= 4;
+    }
+    return x % 8 == 7;
+}
+
+/* 287.寻找重复数 
+给定一个包含 n + 1 个整数的数组 nums ，其数字都在 [1, n] 范围内（包括 1 和 n），可知至少存在一个重复的整数。
+
+假设 nums 只有 一个重复的整数 ，返回 这个重复的数 。
+
+你设计的解决方案必须 不修改 数组 nums 且只用常量级 O(1) 的额外空间。*/
+/* 硬找 */
+var findDuplicate = function(nums) {
+    for(let i = 0; i < nums.length; i++) {
+        if(nums.indexOf(nums[i]) != i) {
+            return nums[i];
+        }
+    }
+};
+/* 二分 */
+var findDuplicate = function(nums) {
+    const n = nums.length;
+    let l = 1, r = n - 1, ans = -1;
+    while (l <= r) {
+        let mid = (l + r) >> 1;
+        let cnt = 0;
+        for (let i = 0; i < n; ++i) {
+            cnt += nums[i] <= mid;
+        }
+        if (cnt <= mid) {
+            l = mid + 1;
+        } else {
+            r = mid - 1;
+            ans = mid;
+        }
+    }
+    return ans;
+};
+/* 快慢指针 :O(n),O(1)*/
+var findDuplicate = function(nums) {
+    let slow = 0, fast = 0;
+    slow = nums[slow];
+    fast = nums[nums[fast]];
+    while(slow != fast) {
+        slow = nums[slow];
+        fast = nums[nums[fast]];
+    }
+    slow = 0;
+    while(slow != fast) {
+        slow = nums[slow];
+        fast = nums[fast];
+    }
+    return slow;
+};
