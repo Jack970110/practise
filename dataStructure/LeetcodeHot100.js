@@ -2301,3 +2301,139 @@ var findDuplicate = function(nums) {
     }
     return slow;
 };
+
+/* 300.最长递增子序列
+给你一个整数数组 nums ，找到其中最长严格递增子序列的长度。
+
+子序列 是由数组派生而来的序列，删除（或不删除）数组中的元素而不改变其余元素的顺序。例如，[3,6,2,7] 是数组 [0,3,1,6,2,2,7] 的子序列。
+*/
+/* 动态规划，O（n2），O（n） */
+var lengthOfLIS = function(nums) {
+    if(nums.length == 0) {
+        return 0;
+    }
+    let dp = new Array(nums.length).fill(1);
+    let maxlen = 1;
+    for(let i = 1; i < nums.length; i++) {
+        for(let j = 0; j < i; j++) {
+            if(nums[i] > nums[j]) {
+                dp[i] = Math.max(dp[i], dp[j] + 1);
+            }
+        }
+        maxlen = Math.max(maxlen, dp[i]);
+    }
+    return maxlen;
+};
+/* 二分查找，O（nlogn），O（n） */
+var lengthOfLIS = function(nums) {
+    let n = nums.length;
+    if(n <= 1){
+        return n;
+    }
+    let tail = [nums[0]];
+    for(let i = 0; i < n; i++) {
+        if(nums[i] > tail[tail.length - 1]) {
+            tail.push(nums[i]);
+        } else {
+            let left = 0, right = tail.length - 1;
+            while(left < right){
+                let mid = (left + right) >> 1;
+                if(tail[mid] < nums[i]){
+                    left = mid + 1;
+                } else {
+                    right = mid;
+                }
+            }
+            tail[left] = nums[i];
+        }
+    }
+    return tail.length;
+};
+
+/* 309.最佳买卖股票时机含冷冻期 */
+/* 动态规划，O（n），O（n）
+状态一：买入股票状态（今天买入股票，或者是之前就买入了股票然后没有操作）
+卖出股票状态，这里就有两种卖出股票状态
+状态二：两天前就卖出了股票，度过了冷冻期，一直没操作，今天保持卖出股票状态
+状态三：今天卖出了股票
+状态四：今天为冷冻期状态，但冷冻期状态不可持续，只有一天！
+
+达到买入股票状态（状态一）即：dp[i][0]，有两个具体操作：
+
+    操作一：前一天就是持有股票状态（状态一），dp[i][0] = dp[i - 1][0]
+    操作二：今天买入了，有两种情况
+            前一天是冷冻期（状态四），dp[i - 1][3] - prices[i]
+            前一天是保持卖出股票状态（状态二），dp[i - 1][1] - prices[i]
+    所以操作二取最大值，即：max(dp[i - 1][3], dp[i - 1][1]) - prices[i]
+    那么dp[i][0] = max(dp[i - 1][0], max(dp[i - 1][3], dp[i - 1][1]) - prices[i]);
+
+达到保持卖出股票状态（状态二）即：dp[i][1]，有两个具体操作：
+
+    操作一：前一天就是状态二
+    操作二：前一天是冷冻期（状态四）
+    dp[i][1] = max(dp[i - 1][1], dp[i - 1][3]);
+
+达到今天就卖出股票状态（状态三），即：dp[i][2] ，只有一个操作：
+
+    操作一：昨天一定是买入股票状态（状态一），今天卖出
+    即：dp[i][2] = dp[i - 1][0] + prices[i];
+
+达到冷冻期状态（状态四），即：dp[i][3]，只有一个操作：
+
+    操作一：昨天卖出了股票（状态三）
+    p[i][3] = dp[i - 1][2];*/
+var maxProfit = function(prices) {
+    if(prices.length < 2) {
+        return 0;
+    } else if(prices.length < 3) {
+        return Math.max(0, prices[1] - prices[0]);
+    }
+    let dp = Array.from(new Array(prices.length), () => Array(4).fill(0));
+    dp[0][0] = 0 - prices[0];
+
+    for(i = 1; i < prices.length; i++) {
+        dp[i][0] = Math.max(dp[i - 1][0], Math.max(dp[i-1][1], dp[i-1][3]) - prices[i]);
+        dp[i][1] = Math.max(dp[i -1][1], dp[i - 1][3]);
+        dp[i][2] = dp[i-1][0] + prices[i];
+        dp[i][3] = dp[i-1][2];
+    }
+
+    return Math.max(dp[prices.length - 1][1], dp[prices.length - 1][2], dp[prices.length - 1][3]);
+};
+
+/* 337.打家劫舍三
+ 小偷又发现了一个新的可行窃的地区。这个地区只有一个入口，我们称之为 root 。
+
+除了 root 之外，每栋房子有且只有一个“父“房子与之相连。一番侦察之后，聪明的小偷意识到“这个地方的所有房屋的排列类似于一棵二叉树”。 如果 两个直接相连的房子在同一天晚上被打劫 ，房屋将自动报警。
+
+给定二叉树的 root 。返回 在不触动警报的情况下 ，小偷能够盗取的最高金额 。*/
+/* 动态规划+dfs */
+var rob = function(root) {
+    const dfs = (node) => {
+        if(node === null) {
+            return [0,0];
+        }
+        const l = dfs(node.left);
+        const r = dfs(node.right);
+        const selected = node.val + l[1] + r[1];
+        const notSelected = Math.max(l[0], l[1]) + Math.max(r[0], r[1]);
+        return [selected, notSelected];
+    }
+    let res = dfs(root);
+    return Math.max(res[0], res[1]);
+}
+
+/* 347.前k个高频元素 
+给你一个整数数组 nums 和一个整数 k ，请你返回其中出现频率前 k 高的元素。你可以按 任意顺序 返回答案*/
+let topKFrequent = function(nums, k) {
+    let map = new Map(), arr = Array.from(new Set(nums));
+    nums.map((num) => {
+        if(map.has(num)) {
+            map.set(num, map.get(num) + 1);
+        } else {
+            map.set(num, 1);
+        }
+    })
+    arr.sort((a,b) => map.get(b) - map.get(a));
+    return arr.slice(0,k);
+};
