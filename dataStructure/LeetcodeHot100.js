@@ -2467,3 +2467,22 @@ var decodeString = (s) => {
     }
     return stack.join('')
   }
+  var decodeString = function(s, cur = 0) {
+    let k = 0;
+    let decoded = '';
+    while (cur < s.length) {
+        if (s[cur] === '[') {
+            const [str, pos] = decodeString(s, cur + 1);
+            decoded += str.repeat(k);
+            k = 0;
+            cur = pos;
+        } else if (s[cur] === ']') {
+            return [decoded, cur + 1];
+        } else if (/[0-9]/.test(s[cur])) {
+            k = k * 10 + parseInt(s[cur++]);
+        } else {
+            decoded += s[cur++];
+        }
+    }
+    return decoded;
+};
