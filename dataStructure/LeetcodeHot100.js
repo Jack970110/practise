@@ -2467,6 +2467,7 @@ var decodeString = (s) => {
     }
     return stack.join('')
   }
+  /* 递归 */
   var decodeString = function(s, cur = 0) {
     let k = 0;
     let decoded = '';
