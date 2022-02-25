@@ -2487,3 +2487,171 @@ var decodeString = (s) => {
     }
     return decoded;
 };
+
+/* 399.除法求职
+给你一个变量对数组 equations 和一个实数值数组 values 作为已知条件，其中 equations[i] = [Ai, Bi] 和 values[i] 共同表示等式 Ai / Bi = values[i] 。每个 Ai 或 Bi 是一个表示单个变量的字符串。
+
+另有一些以数组 queries 表示的问题，其中 queries[j] = [Cj, Dj] 表示第 j 个问题，请你根据已知条件找出 Cj / Dj = ? 的结果作为答案。
+
+返回 所有问题的答案 。如果存在某个无法确定的答案，则用 -1.0 替代这个答案。如果问题中出现了给定的已知条件中没有出现的字符串，也需要用 -1.0 替代这个答案。
+
+注意：输入总是有效的。你可以假设除法运算中不会出现除数为 0 的情况，且不存在任何矛盾的结果。*/
+/* 广度优先搜索 */
+var calcEquation = function(equations, values, queries) {
+    let nvars = 0;
+    const variables = new Map();
+
+    const n = equations.length;
+    for (let i = 0; i < n; i++) {
+        if (!variables.has(equations[i][0])) {
+            variables.set(equations[i][0], nvars++);
+        }
+        if (!variables.has(equations[i][1])) {
+            variables.set(equations[i][1], nvars++);
+        }
+    }
+
+    // 对于每个点，存储其直接连接到的所有点及对应的权值
+    const edges = new Array(nvars).fill(0);
+    for (let i = 0; i < nvars; i++) {
+        edges[i] = [];
+    }
+    for (let i = 0; i < n; i++) {
+        const va = variables.get(equations[i][0]), vb = variables.get(equations[i][1]);
+        edges[va].push([vb, values[i]]);
+        edges[vb].push([va, 1.0 / values[i]]);
+    }
+
+    const queriesCount = queries.length;
+    const ret = [];
+    for (let i = 0; i < queriesCount; i++) {
+        const query = queries[i];
+        let result = -1.0;
+        if (variables.has(query[0]) && variables.has(query[1])) {
+            const ia = variables.get(query[0]), ib = variables.get(query[1]);
+            if (ia === ib) {
+                result = 1.0;
+            } else {
+                const points = [];
+                points.push(ia);
+                const ratios = new Array(nvars).fill(-1.0);
+                ratios[ia] = 1.0;
+
+                while (points.length && ratios[ib] < 0) {
+                    const x = points.pop();
+                    for (const [y, val] of edges[x]) {
+                        if (ratios[y] < 0) {
+                            ratios[y] = ratios[x] * val;
+                            points.push(y);
+                        }
+                    }
+                }
+                result = ratios[ib];
+            }
+        }
+        ret[i] = result;
+    }
+    return ret;
+};
+
+/* 406.根据身高重建队列
+ 假设有打乱顺序的一群人站成一个队列，数组 people 表示队列中一些人的属性（不一定按顺序）。每个 people[i] = [hi, ki] 表示第 i 个人的身高为 hi ，前面 正好 有 ki 个身高大于或等于 hi 的人。
+
+请你重新构造并返回输入数组 people 所表示的队列。返回的队列应该格式化为数组 queue ，其中 queue[j] = [hj, kj] 是队列中第 j 个人的属性（queue[0] 是排在队列前面的人）。
+*/
+/* 按身高从高到低排列，按前面有多少高的人插入新队列 */
+var reconstructQueue = function(people) {
+    people.sort((a,b) => a[0] === b[0] ? a[1] - b[1] : b[0] - a[0]);
+    let queue = [];
+    for(let i = 0; i < people.length; i++) {
+        queue.splice(people[i][1], 0 , people[i]);
+    }
+    return queue;
+};
+var reconstructQueue = function(people) {
+    people.sort((a, b) => a[0] - b[0] || b[1] - a[1]);
+    return people.reduce((p, v, t) => (t = v[1], p[p.findIndex(_=>_ === void 0 && t-- === 0)] = v, p), Array(people.length));
+};
+
+/* 416.分割等和子集 
+给你一个 只包含正整数 的 非空 数组 nums 。请你判断是否可以将这个数组分割成两个子集，使得两个子集的元素和相等。*/
+/* 动态规划 */
+var canPartition = function(nums) {
+    if(nums.length < 2) {
+        return false;
+    }
+    let sum = 0, maxNum = 0;
+    for(const num of nums) {
+        sum += num;
+        maxNum = maxNum > num ? maxNum : num;
+    }
+    if(sum % 2 == 1) {
+        return false;
+    }
+    let target = Math.floor(sum / 2);
+    if(maxNum > target){
+        return false;
+    }
+    let dp = new Array(target + 1).fill(false);
+    dp[0] = true;
+    for(const num of nums){
+        for(let j = target; j >= num; --j){
+            dp[j] = dp[j] | dp[j - num];
+        }
+    }
+    return dp[target];
+};
+
+/* 437.路径总和三
+ 给定一个二叉树的根节点 root ，和一个整数 targetSum ，求该二叉树里节点值之和等于 targetSum 的 路径 的数目。
+
+路径 不需要从根节点开始，也不需要在叶子节点结束，但是路径方向必须是向下的（只能从父节点到子节点）*/
+/* 动态规划 */
+var pathSum = function(root, targetSum) {
+    if (root == null) {
+        return 0;
+    }
+    
+    let ret = rootSum(root, targetSum);
+    ret += pathSum(root.left, targetSum);
+    ret += pathSum(root.right, targetSum);
+    return ret;
+};
+const rootSum = (root, targetSum) => {
+    let ret = 0;
+
+    if (root == null) {
+        return 0;
+    }
+    const val = root.val;
+    if (val === targetSum) {
+        ret++;
+    } 
+
+    ret += rootSum(root.left, targetSum - val);
+    ret += rootSum(root.right, targetSum - val);
+    return ret;
+}
+/* 前缀和 */
+var pathSum = function(root, targetSum) {
+    const prefix = new Map();
+    prefix.set(0, 1);
+    return dfs(root, prefix, 0, targetSum);
+}
+
+const dfs = (root, prefix, curr, targetSum) => {
+    if (root == null) {
+        return 0;
+    }
+
+    let ret = 0;
+    curr += root.val;
+
+    ret = prefix.get(curr - targetSum) || 0;
+    prefix.set(curr, (prefix.get(curr) || 0) + 1);
+    ret += dfs(root.left, prefix, curr, targetSum);
+    ret += dfs(root.right, prefix, curr, targetSum);
+    prefix.set(curr, (prefix.get(curr) || 0) - 1);
+
+    return ret;
+}
