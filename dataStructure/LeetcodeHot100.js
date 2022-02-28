@@ -2655,3 +2655,282 @@ const dfs = (root, prefix, curr, targetSum) => {
 
     return ret;
 }
+
+/* 438.找到字符串中所有字母异位词 
+给定两个字符串 s 和 p，找到 s 中所有 p 的 异位词 的子串，返回这些子串的起始索引。不考虑答案输出的顺序。
+
+异位词 指由相同字母重排列形成的字符串（包括相同的字符串）。
+
+滑动窗口*/
+var findAnagrams = function(s, p) {
+    const sLen = s.length, pLen = p.length;
+    if(sLen < pLen) {
+        return [];
+    }
+    const ans = [], sCount = new Array(26).fill(0), pCount = new Array(26).fill(0);
+    for(let i = 0; i < pLen; i++) {
+        sCount[s[i].charCodeAt() - 'a'.charCodeAt()]++;
+        pCount[p[i].charCodeAt() - 'a'.charCodeAt()]++;
+    }
+    if(sCount.toString() === pCount.toString()) {
+        ans.push(0);
+    }
+    for(let i = 0; i < sLen - pLen; i++) {
+        sCount[s[i].charCodeAt() - 'a'.charCodeAt()]--;
+        sCount[s[i + pLen].charCodeAt() - 'a'.charCodeAt()]++;
+        if(sCount.toString() === pCount.toString()) {
+            ans.push(i+1);
+        }
+    }
+    return ans;
+}
+
+/* 494.目标和
+ 给你一个整数数组 nums 和一个整数 target 。
+
+向数组中的每个整数前添加 '+' 或 '-' ，然后串联起所有整数，可以构造一个 表达式 ：*/
+/* 动态规划 */
+var findTargetSumWays = function(nums, target) {
+    let sum = 0;
+    for(let num of nums) {
+        sum += num;
+    }
+    const diff = sum - target;
+    if(diff < 0 || diff % 2 !== 0) {
+        return 0;
+    }
+    const neg = Math.floor(diff / 2);
+    const dp = new Array(neg + 1).fill(0);
+    dp[0] = 1;
+    for(let num of nums) {
+        for(let j = neg; j >= num; j--) {
+            dp[j] += dp[j - num];
+        }
+    }
+    return dp[neg];
+}
+
+/* 538.把二叉树转换为累加树
+给出二叉 搜索 树的根节点，该树的节点值各不相同，请你将其转换为累加树（Greater Sum Tree），使每个节点 node 的新值等于原树中大于或等于 node.val 的值之和。
+
+提醒一下，二叉搜索树满足下列约束条件：
+
+节点的左子树仅包含键 小于 节点键的节点。
+节点的右子树仅包含键 大于 节点键的节点。
+左右子树也必须是二叉搜索树。
+
+反序的中序遍历 */
+var convertBST = function(root) {
+    let sum = 0;
+    const convertInOrder = (root) => {
+        if (root) {  // 遍历到null节点，开始返回
+            convertInOrder(root.right); // 先进入右子树
+
+            sum += root.val;     // 节点值累加给sum
+            root.val = sum;      // 累加的结果，赋给root.val
+        
+            convertInOrder(root.left);  // 然后才进入左子树
+        }
+    };
+    convertInOrder(root); // 递归的入口，从根节点开始
+    return root;
+}; 
+
+/* 560.和为k子数组 */
+/* 暴力枚举 */
+var subarraySum = function(nums, k) {
+    let count = 0;
+    for(let i = 0; i < nums.length; i++) {
+        let sum = 0;
+        for(let j = i; j >= 0; j--){
+            sum += nums[j];
+            if(sum === k) {
+                count++;
+            }
+        }
+    }
+    return count;
+}
+/* 前缀和 */
+var subarraySum = function(nums, k) {
+    const mp = new Map();
+    mp.set(0,1);
+    let count = 0, prev = 0;
+    for(let num of nums) {
+        prev += num;
+        if(mp.has(prev - k)) {
+            count += mp.get(prev - k);
+        }
+        if(mp.has(prev)) {
+            mp.set(prev, mp.get(prev) + 1);
+        } else {
+            mp.set(prev, 1);
+        }
+    }
+    return count;
+}
+
+/* 581.最短无序子数组
+给你一个整数数组 nums ，你需要找出一个 连续子数组 ，如果对这个子数组进行升序排序，那么整个数组都会变为升序排序。
+
+请你找出符合题意的 最短 子数组，并输出它的长度。
+进阶：你可以设计一个时间复杂度为 O(n) 的解决方案吗？ */
+var findUnsortedSubarray = function(nums) {
+    if(isSorted(nums)) {
+        return 0;
+    }
+    const numsSorted = [...nums].sort((a,b) => a-b);
+    let left = 0;
+    while(nums[left] === numsSorted[left]) {
+        left ++;
+    }
+    let right = nums.length - 1;
+    while(nums[right] === numsSorted[right]) {
+        right --;
+    }
+    return right - left + 1;
+}
+const isSorted =function(nums) {
+    for (let i = 1; i < nums.length; i++) {
+        if (nums[i] < nums[i - 1]) {
+            return false;
+        }
+    }
+    return true;
+}
+var findUnsortedSubarray = function(nums) {
+    const n = nums.length;
+    let maxn = -Number.MAX_VALUE, right = -1;
+    let minn = Number.MAX_VALUE, left = -1;
+    for (let i = 0; i < n; i++) {
+        if (maxn > nums[i]) {
+            right = i;
+        } else {
+            maxn = nums[i];
+        }
+        if (minn < nums[n - i - 1]) {
+            left = n - i - 1;
+        } else {
+            minn = nums[n - i - 1];
+        }
+    }
+    return right === -1 ? 0 : right - left + 1;
+};
+
+/* 621.任务调度器
+给你一个用字符数组 tasks 表示的 CPU 需要执行的任务列表。其中每个字母表示一种不同种类的任务。任务可以以任意顺序执行，并且每个任务都可以在 1 个单位时间内执行完。在任何一个单位时间，CPU 可以完成一个任务，或者处于待命状态。
+
+然而，两个 相同种类 的任务之间必须有长度为整数 n 的冷却时间，因此至少有连续 n 个单位时间内 CPU 在执行不同的任务，或者在待命状态。
+
+你需要计算完成所有任务所需要的 最短时间 。 */
+var leastInterval = function(tasks, n) {
+    const freq = _.countBy(tasks);
+
+    // 最多的执行次数
+    const maxExec = Math.max(...Object.values(freq));
+    // 具有最多执行次数的任务数量
+    let maxCount = 0;
+    Object.values(freq).forEach(v => {
+        if (v === maxExec) {
+            maxCount++;
+        }
+    })
+
+    return Math.max((maxExec - 1) * (n + 1) + maxCount, tasks.length);
+};
+var leastInterval = function(tasks, n) {
+    let arr = Array(26).fill(0);
+    for (let c of tasks) {
+        //统计各个字母出现的次数
+        arr[c.charCodeAt() - "A".charCodeAt()]++;
+    }
+    let max = 0;
+    for (let i = 0; i < 26; i++) {
+        //找到最大次数
+        max = Math.max(max, arr[i]);
+    }
+    let ret = (max - 1) * (n + 1); //计算前n-1行n的间隔的时间大小
+    for (let i = 0; i < 26; i++) {
+        //计算和最大次数相同的字母个数，然后累加进ret
+        if (arr[i] == max) {
+            ret++;
+        }
+    }
+    return Math.max(ret, tasks.length); //在tasks的长度和ret中取较大的一个
+};
+
+var countSubstrings = function(s) {
+    const n = s.length;
+    let ans = 0;
+    for (let i = 0; i < 2 * n - 1; ++i) {
+        let l = i / 2, r = i / 2 + i % 2;
+        while (l >= 0 && r < n && s.charAt(l) == s.charAt(r)) {
+            --l;
+            ++r;
+            ++ans;
+        }
+    }
+    return ans;
+};
+var countSubstrings = function(s) {
+    let n = s.length;
+    let t = ['$', '#'];
+    for (let i = 0; i < n; ++i) {
+        t.push(s.charAt(i));
+        t.push('#');
+    }
+    n = t.length;
+    t.push('!');
+    t = t.join('');
+
+    const f = new Array(n);
+    let iMax = 0, rMax = 0, ans = 0;
+    for (let i = 1; i < n; ++i) {
+        // 初始化 f[i]
+        f[i] = i <= rMax ? Math.min(rMax - i + 1, f[2 * iMax - i]) : 1;
+        // 中心拓展
+        while (t.charAt(i + f[i]) == t.charAt(i - f[i])) {
+            ++f[i];
+        }
+        // 动态维护 iMax 和 rMax
+        if (i + f[i] - 1 > rMax) {
+            iMax = i;
+            rMax = i + f[i] - 1;
+        }
+        // 统计答案, 当前贡献为 (f[i] - 1) / 2 上取整
+        ans += Math.floor(f[i] / 2);
+    }
+
+    return ans;
+};
+
+/* 739.每日温度
+给定一个整数数组 temperatures ，表示每天的温度，返回一个数组 answer ，其中 answer[i] 是指在第 i 天之后，才会有更高的温度。如果气温在这之后都不会升高，请在该位置用 0 来代替。 */
+/* 暴力 O(n2), O(1)*/
+var dailyTemperatures = function(temperatures) {
+    const res = new Array(temperatures.length).fill(0);
+    for(let i = 0; i < temperatures.length; i++) {
+        for(let j = i+1; j < temperatures.length; j++) {
+            if(temperatures[j] > temperatures[i]) {
+                res[i] = j - i;
+                break;
+            }
+        }
+    }
+    return res;
+};
+/* 单调栈 O(n), O(n)*/
+var dailyTemperatures = function(temperatures) {
+    const res = new Array(temperatures.length).fill(0);
+    let stack = [];
+    for(let i = temperatures.length - 1; i >= 0; i--) {
+        while(stack.length && temperatures[i] >= temperatures[stack[stack.length - 1]]) {
+            stack.pop();
+        }
+        if(stack.length) {
+            res[i] = stack[stack.length - 1] - i;
+        }
+        stack.push(i)
+    }
+    return res;
+};
