@@ -33,23 +33,24 @@ function promiseAll1 (args) {
         let resultIndex = iteratorIndex;
         iteratorIndex += 1;
         // 包一层，以兼容非promise的情况
-        Promise.resolve(item).then(res => {
-          promiseResults[resultIndex] = res;
-          fullCount += 1;
-          // Iterator 接口的数据无法单纯的用length和size判断长度，不能局限于Array和 Map类型中
-          if (fullCount === iteratorIndex) {
-            resolve(promiseResults)
-          }
-        }).catch(err => {
-          reject(err)
-        })
+        Promise.resolve(item)
+          .then(res => {
+            promiseResults[resultIndex] = res;
+            fullCount += 1;
+            // Iterator 接口的数据无法单纯的用length和size判断长度，不能局限于Array和 Map类型中
+            if (fullCount === iteratorIndex) {
+              resolve(promiseResults)
+            }
+          })
+          .catch(err => {
+            reject(err)
+          })
       }
       // 处理空 iterator 的情况
       if(iteratorIndex===0){
         resolve(promiseResults)
       }
-    }
-    )
+    })
   }
 const promise1 = Promise.resolve('promise1');
 const promise2 = new Promise(function(resolve, reject) {
