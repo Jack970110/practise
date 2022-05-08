@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<link rel="stylesheet" href="">
+<style>
+    @import url();
+</style>
+<body>
+    
+</body>
+<script>
+    function create(){
+        //创建一个空对象  
+        let obj = {};
+        //获取构造函数
+        let Constructor = Array.prototype.shift.call(arguments);
+        //链接到原型
+        obj.__proto__ = Constructor.prototype;
+        //绑定this
+        let result = Constructor.apply(obj,arguments);
+        //返回新对象,(如果返回值是一个对象就返回该对象，否则返回构造函数的一个实例对象)
+        return typeof result === "object" ? result : obj;
+    }
+    function Test(name,age){
+        this.name = name;
+        this.age = age;
+    }
+
+    let Test1 = new Test("Fan",20);
+    console.log(Test1.name);	// Fan
+    console.log(Test1.age);		// 20
+
+    let Test2 = create(Test,"Jun",22);
+    console.log(Test2.name);	// Jun
+    console.log(Test2.age);		// 22
+    let str = 'ddshfbusfb';
+    const obj = new Map();
+    obj.set('ssd', 166);
+    obj.set(12, 'xsdnsd');
+    obj.set(str, 121);
+    console.log(...str);
+    console.log(...obj);
+
+</script>
+</html>

@@ -22,21 +22,29 @@ function debounce1( func, delay){
 }
 
 //节流函数：按照设定的时间固定执行一次函数
-function throttle(func, delay, mustRun) {
+// 计时器实现
+function throttle(func, delay) {
     var timeout;
-    var starttime = new Date(); //起始的时间
     return function() {
         var context = this, args = arguments;
-        var curtime = new Date(); //当前时间
-        clearTimeout(timeout);
-        //如果达到规定的触发时间间隔，触发func
-        if(curtime - starttime >= mustRun) {
-            func.apply(context, args);
-            starttime = curtime;
+        if(timeout) {
+            return
         }
-        //没有达到触发时间，重新设定计时器
-        else {
-            timeout = setTimeout(func, delay);
+        timeout = setTimeout(function(){
+            func.apply(context, args);
+            timeout = null;
+        },delay)
+    }
+}
+// 时间戳实现
+function throttle1(fn, delay) {
+    var previous = 0;
+    return function() {
+        var content = this, args = arguments;
+        var now = new Date();
+        if(now - previous > delay){
+            fn.apply(content, args);
+            previous = now;
         }
     }
 }

@@ -97,3 +97,141 @@ var permutation = function(s) {
 }
 let s = 'aab';
 console.log(permutation(s));
+var add = function(a, b) {
+    let m = a.length - 1, n = b.length - 1;
+    let res = [], jinwei = 0;
+    while(m >=0 && n >=0) {
+        const x = a[m] - '0', y = b[n] - '0';
+        if(x + y + jinwei === 3){
+            jinwei = 1;
+            res.push(1);
+        } else if(x + y + jinwei === 2) {
+            jinwei = 1;
+            res.push(0);
+        } else if(x + y + jinwei === 1) {
+            jinwei = 0;
+            res.push(1);
+        } else {
+            jinwei = 0;
+            res.push(0);
+        }
+        m--;
+        n--;
+    }
+    while(m >= 0) {
+        const x = a[m] - '0';
+        let sum = x + jinwei;
+        if(sum === 2) {
+            jinwei = 1;
+            res.push(0);
+        } else if( sum === 1) {
+            jinwei = 0;
+            res.push(1);
+        } else {
+            jinwei = 0;
+            res.push(0);
+        }
+        m --;
+    }
+    while(n >= 0) {
+        const y = a[n] - '0';
+        let sum = y + jinwei;
+        if(sum === 2) {
+            jinwei = 1;
+            res.push(0);
+        } else if( sum === 1) {
+            jinwei = 0;
+            res.push(1);
+        } else {
+            jinwei = 0;
+            res.push(0);
+        }
+        n--;
+    }
+    if(jinwei === 1) {
+        res.push(1);
+    }
+    return res.reverse().join('');
+}
+var flatten = function(head) {
+    const dfs = (node) => {
+        let cur = node;
+        // 记录链表的最后一个节点
+        let last = null;
+
+        while (cur) {
+            let next = cur.next;
+            //  如果有子节点，那么首先处理子节点
+            if (cur.child) {
+                const childLast = dfs(cur.child);
+
+                next = cur.next;
+                //  将 node 与 child 相连
+                cur.next = cur.child;
+                cur.child.prev = cur;
+
+                //  如果 next 不为空，就将 last 与 next 相连
+                if (next != null) {
+                    childLast.next = next;
+                    next.prev = childLast;
+                }
+
+                // 将 child 置为空
+                cur.child = null;
+                last = childLast;
+            } else {
+                last = cur;
+            }
+            cur = next;
+
+        }
+        return last;
+    }
+
+    dfs(head);
+    return head;
+};
+const address = [
+    {
+      addressId: 1,
+      addressName: '北京市',
+      subDistrict: [
+        {
+          addressId: 11,
+          addressName: '海淀区',
+          subDistrict: [
+            {
+              addressId: 111,
+              addressName: '中关村',
+            },
+          ],
+        },
+        {
+          addressId: 12,
+          addressName: '朝阳区',
+        },
+      ],
+    },
+    {
+      addressId: 2,
+      addressName: '河北省',
+    },
+  ];
+  function convert(arr) {
+    let newArr = [];
+    for (let i = 0; i < arr.length; i++) {
+      let obj = arr[i];
+      let newObj = {};
+      for (const key in obj) {
+        const newKey = key.replace(/([A-Z])/g, '_$1').toLowerCase();
+        if (Array.isArray(obj[key])) {
+          newObj[newKey] = convert(obj[key]);
+        } else {
+          newObj[newKey] = obj[key];
+        }
+      }
+      newArr.push(newObj);
+    }
+    return newArr;
+  }
+  console.log(convert(address));
